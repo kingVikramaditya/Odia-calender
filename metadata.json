@@ -1,0 +1,6 @@
+{
+  "name": "Odia Calendar & Panchang",
+  "description": "Comprehensive Odia Calendar and Daily Panchang dashboard featuring Odia months, Tithi, Nakshatra, festivals, Osha-Brata, Muhurtas, Rashifal, and live weather.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

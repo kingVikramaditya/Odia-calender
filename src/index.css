@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+  :root {
+    --font-odia: 'Anek Odia', 'Noto Sans Oriya', 'Plus Jakarta Sans', sans-serif;
+    color-scheme: light;
+  }
+
+  .dark, [data-theme="dark"] {
+    color-scheme: dark;
+  }
+  
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: 'Anek Odia', 'Plus Jakarta Sans', 'Noto Sans Oriya', sans-serif;
+    line-height: 1.5;
+    letter-spacing: normal;
+  }
+}
+
+.font-odia {
+  font-family: 'Anek Odia', 'Noto Sans Oriya', sans-serif;
+  letter-spacing: normal !important;
+  line-height: 1.45;
+}
+
+/* Custom scrollbars for clean dashboard feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

@@ -98,6 +98,7 @@ export interface PanchangDay {
   gregorianDay: number;
   gregorianMonth: number;
   gregorianYear: number;
+  location: LocationInfo;
   
   // Odia specifics
   odiaDayNumber: string; // e.g. "୨୨"

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   ChevronLeft, 
   ChevronRight, 
+  ChevronDown,
+  Check,
   Calendar as CalendarIcon,
   Sun,
   Flame,
@@ -22,6 +24,32 @@ interface MonthCalendarGridProps {
   language: LanguageMode;
 }
 
+// Curated Month Options with Odia transliteration & seasonal Masa context
+const MONTH_OPTIONS = [
+  { index: 0, nameEn: 'January', nameOdia: 'ଜାନୁଆରୀ', masaOdia: 'ପୌଷ - ମାଘ (ମକର ସଂକ୍ରାନ୍ତି)' },
+  { index: 1, nameEn: 'February', nameOdia: 'ଫେବୃଆରୀ', masaOdia: 'ମାଘ - ଫାଲ୍ଗୁନ (ସରସ୍ୱତୀ ପୂଜା)' },
+  { index: 2, nameEn: 'March', nameOdia: 'ମାର୍ଚ୍ଚ', masaOdia: 'ଫାଲ୍ଗୁନ - ଚୈତ୍ର (ଦୋଳ ପୂର୍ଣ୍ଣିମା / ହୋଲି)' },
+  { index: 3, nameEn: 'April', nameOdia: 'ଅପ୍ରେଲ୍', masaOdia: 'ଚୈତ୍ର - ବୈଶାଖ (ମହାବିଷୁବ / ପଣା ସଂକ୍ରାନ୍ତି)' },
+  { index: 4, nameEn: 'May', nameOdia: 'ମେ', masaOdia: 'ବୈଶାଖ - ଜ୍ୟେଷ୍ଠ (ଚନ୍ଦନ ଯାତ୍ରା)' },
+  { index: 5, nameEn: 'June', nameOdia: 'ଜୁନ୍', masaOdia: 'ଜ୍ୟେଷ୍ଠ - ଆଷାଢ଼ (ଶ୍ରୀଗୁଣ୍ଡିଚା / ରଥଯାତ୍ରା)' },
+  { index: 6, nameEn: 'July', nameOdia: 'ଜୁଲାଇ', masaOdia: 'ଆଷାଢ଼ - ଶ୍ରାବଣ (ବାହୁଡ଼ା ଯାତ୍ରା)' },
+  { index: 7, nameEn: 'August', nameOdia: 'ଅଗଷ୍ଟ', masaOdia: 'ଶ୍ରାବଣ - ଭାଦ୍ରବ (ଶ୍ରୀକୃଷ୍ଣ ଜନ୍ମାଷ୍ଟମୀ)' },
+  { index: 8, nameEn: 'September', nameOdia: 'ସେପ୍ଟେମ୍ବର', masaOdia: 'ଭାଦ୍ରବ - ଆଶ୍ୱିନ (ଗଣେଶ ପୂଜା / ସୁନିଆଁ)' },
+  { index: 9, nameEn: 'October', nameOdia: 'ଅକ୍ଟୋବର', masaOdia: 'ଆଶ୍ୱିନ - କାର୍ତ୍ତିକ (ଦୁର୍ଗାପୂଜା / କୁମାର ପୂର୍ଣ୍ଣିମା)' },
+  { index: 10, nameEn: 'November', nameOdia: 'ନଭେମ୍ବର', masaOdia: 'କାର୍ତ୍ତିକ - ମାର୍ଗଶିର (ବାଲିଯାତ୍ରା / ବୋଇତ ବନ୍ଦାଣ)' },
+  { index: 11, nameEn: 'December', nameOdia: 'ଡିସେମ୍ବର', masaOdia: 'ମାର୍ଗଶିର - ପୌଷ (ଧନୁ ସଂକ୍ରାନ୍ତି / ମାଣବସା)' },
+];
+
+const YEAR_OPTIONS = [
+  { year: 2024, sal: '୧୪୩୧-୩୨ ସାଲ', sakabda: '୧୯୪୬ ଶକାବ୍ଦ' },
+  { year: 2025, sal: '୧୪୩୨-୩୩ ସାଲ', sakabda: '୧୯୪୭ ଶକାବ୍ଦ' },
+  { year: 2026, sal: '୧୪୩୩-୩୪ ସାଲ', sakabda: '୧୯୪୮ ଶକାବ୍ଦ' },
+  { year: 2027, sal: '୧୪୩୪-୩୫ ସାଲ', sakabda: '୧୯୪୯ ଶକାବ୍ଦ' },
+  { year: 2028, sal: '୧୪୩୫-୩୬ ସାଲ', sakabda: '୧୯୫୦ ଶକାବ୍ଦ' },
+  { year: 2029, sal: '୧୪୩୬-୩୭ ସାଲ', sakabda: '୧୯୫୧ ଶକାବ୍ଦ' },
+  { year: 2030, sal: '୧୪୩୭-୩୮ ସାଲ', sakabda: '୧୯୫୨ ଶକାବ୍ଦ' },
+];
+
 export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
   currentDate,
   selectedDate,
@@ -36,6 +64,29 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
 
   const gYear = currentDate.getFullYear();
   const gMonth = currentDate.getMonth();
+
+  // Custom Dropdowns state & click-outside handling
+  const [monthDropdownOpen, setMonthDropdownOpen] = useState(false);
+  const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
+  const monthDropdownRef = useRef<HTMLDivElement>(null);
+  const yearDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (monthDropdownRef.current && !monthDropdownRef.current.contains(event.target as Node)) {
+        setMonthDropdownOpen(false);
+      }
+      if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target as Node)) {
+        setYearDropdownOpen(false);
+      }
+    };
+    if (monthDropdownOpen || yearDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [monthDropdownOpen, yearDropdownOpen]);
 
   // Find first day's weekday to pad the grid (0 = Sun, 6 = Sat)
   const firstDayWeekday = monthDays.length > 0 ? monthDays[0].dayOfWeek : 0;
@@ -77,42 +128,153 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
           </p>
         </div>
 
-        {/* Navigation buttons: Prev, Dropdowns, Next */}
+        {/* Navigation buttons: Custom Styled Month & Year Dropdowns + Arrow Navigation */}
         <div className="flex items-center gap-2">
-          {/* Quick Month Dropdown */}
-          <select
-            id="month-select-dropdown"
-            value={gMonth}
-            onChange={(e) => onSetMonth(gYear, parseInt(e.target.value, 10))}
-            className="px-2.5 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xs font-semibold text-neutral-700 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
-          >
-            {gregorianMonthNames.map((mName, idx) => (
-              <option key={idx} value={idx}>
-                {mName}
-              </option>
-            ))}
-          </select>
+          {/* Custom Month Dropdown styled like Weather location selector */}
+          <div className="relative" ref={monthDropdownRef}>
+            <button
+              type="button"
+              id="month-picker-button"
+              onClick={() => {
+                setMonthDropdownOpen(!monthDropdownOpen);
+                setYearDropdownOpen(false);
+              }}
+              className="group inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#FDF1DC] dark:bg-[#201B17] border border-[#F6DEBA] dark:border-[#382D24] hover:bg-[#F9E6C9] dark:hover:bg-[#2C231C] text-xs font-bold text-[#8E282E] dark:text-[#F39A94] shadow-2xs transition-all cursor-pointer select-none"
+              title={isOdia ? 'ମାସ ବାଛନ୍ତୁ' : 'Select Month'}
+            >
+              <span className="font-odia text-xs sm:text-sm font-bold">
+                {isOdia 
+                  ? MONTH_OPTIONS[gMonth].nameOdia 
+                  : isBoth 
+                  ? `${MONTH_OPTIONS[gMonth].nameOdia} (${MONTH_OPTIONS[gMonth].nameEn})` 
+                  : MONTH_OPTIONS[gMonth].nameEn}
+              </span>
+              <div className="w-4 h-4 rounded-full bg-[#F3D7B5] dark:bg-[#34271F] text-[#9E353B] dark:text-[#E88880] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${monthDropdownOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
 
-          {/* Quick Year Dropdown */}
-          <select
-            id="year-select-dropdown"
-            value={gYear}
-            onChange={(e) => onSetMonth(parseInt(e.target.value, 10), gMonth)}
-            className="px-2.5 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xs font-semibold text-neutral-700 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
-          >
-            {[2024, 2025, 2026, 2027, 2028].map((yr) => (
-              <option key={yr} value={yr}>
-                {yr} ({toOdiaNumber(yr)})
-              </option>
-            ))}
-          </select>
+            {/* Month Dropdown Popover */}
+            {monthDropdownOpen && (
+              <div 
+                id="month-dropdown-menu"
+                className="absolute top-full right-0 sm:left-0 mt-2 w-64 sm:w-72 max-h-80 bg-[#FFFDF9] dark:bg-[#251E19] rounded-2xl shadow-xl border border-[#F2D7B5] dark:border-[#423429] z-50 overflow-hidden flex flex-col animate-fade-in"
+              >
+                <div className="p-2.5 border-b border-[#F5E2CE] dark:border-[#382B22] bg-[#FAF3E6] dark:bg-[#2C231D] flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#8E282E] dark:text-[#F39A94] font-odia">
+                    {isOdia ? 'ମାସ ପରିବର୍ତ୍ତନ କରନ୍ତୁ' : 'Select Month'}
+                  </span>
+                  <span className="text-[10px] text-[#8B6E5C] dark:text-[#C5A894] font-semibold">
+                    {gYear} ({toOdiaNumber(gYear)})
+                  </span>
+                </div>
 
-          {/* Arrow navigation buttons in warm peach/terracotta tone (Image 1 & 2) */}
+                <div className="overflow-y-auto p-1.5 space-y-0.5 max-h-64">
+                  {MONTH_OPTIONS.map((opt) => {
+                    const isSelected = opt.index === gMonth;
+                    return (
+                      <button
+                        key={opt.index}
+                        type="button"
+                        onClick={() => {
+                          onSetMonth(gYear, opt.index);
+                          setMonthDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs transition-colors cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#FBE3CD] dark:bg-[#432A22] text-[#8E282E] dark:text-[#F39A94] font-bold'
+                            : 'hover:bg-[#F9EDE0] dark:hover:bg-[#31251E] text-neutral-700 dark:text-neutral-200'
+                        }`}
+                      >
+                        <div>
+                          <div className="text-sm font-bold text-neutral-900 dark:text-neutral-100 font-odia leading-snug">
+                            {opt.nameOdia} ({opt.nameEn})
+                          </div>
+                          <div className="text-[10px] font-semibold text-[#8B6E5C] dark:text-[#A78A78] font-odia">
+                            {opt.masaOdia}
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-4 h-4 text-[#8E282E] dark:text-[#F39A94] shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Custom Year Dropdown styled like Weather location selector */}
+          <div className="relative" ref={yearDropdownRef}>
+            <button
+              type="button"
+              id="year-picker-button"
+              onClick={() => {
+                setYearDropdownOpen(!yearDropdownOpen);
+                setMonthDropdownOpen(false);
+              }}
+              className="group inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#FDF1DC] dark:bg-[#201B17] border border-[#F6DEBA] dark:border-[#382D24] hover:bg-[#F9E6C9] dark:hover:bg-[#2C231C] text-xs font-bold text-[#8E282E] dark:text-[#F39A94] shadow-2xs transition-all cursor-pointer select-none"
+              title={isOdia ? 'ବର୍ଷ ବାଛନ୍ତୁ' : 'Select Year'}
+            >
+              <span className="font-odia text-xs sm:text-sm font-bold">
+                {gYear} ({toOdiaNumber(gYear)})
+              </span>
+              <div className="w-4 h-4 rounded-full bg-[#F3D7B5] dark:bg-[#34271F] text-[#9E353B] dark:text-[#E88880] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${yearDropdownOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
+
+            {/* Year Dropdown Popover */}
+            {yearDropdownOpen && (
+              <div 
+                id="year-dropdown-menu"
+                className="absolute top-full right-0 mt-2 w-56 sm:w-64 max-h-80 bg-[#FFFDF9] dark:bg-[#251E19] rounded-2xl shadow-xl border border-[#F2D7B5] dark:border-[#423429] z-50 overflow-hidden flex flex-col animate-fade-in"
+              >
+                <div className="p-2.5 border-b border-[#F5E2CE] dark:border-[#382B22] bg-[#FAF3E6] dark:bg-[#2C231D] flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#8E282E] dark:text-[#F39A94] font-odia">
+                    {isOdia ? 'ବର୍ଷ ପରିବର୍ତ୍ତନ କରନ୍ତୁ' : 'Select Year'}
+                  </span>
+                </div>
+
+                <div className="overflow-y-auto p-1.5 space-y-0.5 max-h-64">
+                  {YEAR_OPTIONS.map((opt) => {
+                    const isSelected = opt.year === gYear;
+                    return (
+                      <button
+                        key={opt.year}
+                        type="button"
+                        onClick={() => {
+                          onSetMonth(opt.year, gMonth);
+                          setYearDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs transition-colors cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#FBE3CD] dark:bg-[#432A22] text-[#8E282E] dark:text-[#F39A94] font-bold'
+                            : 'hover:bg-[#F9EDE0] dark:hover:bg-[#31251E] text-neutral-700 dark:text-neutral-200'
+                        }`}
+                      >
+                        <div>
+                          <div className="text-sm font-bold text-neutral-900 dark:text-neutral-100 font-odia leading-snug">
+                            {opt.year} ({toOdiaNumber(opt.year)})
+                          </div>
+                          <div className="text-[10px] font-semibold text-[#8B6E5C] dark:text-[#A78A78] font-odia">
+                            {opt.sal} • {opt.sakabda}
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-4 h-4 text-[#8E282E] dark:text-[#F39A94] shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Arrow navigation buttons in warm peach/terracotta tone matching dropdowns */}
           <div className="flex items-center gap-1 ml-1">
             <button
               id="prev-month-btn"
               onClick={() => onNavigateMonth(-1)}
-              className="p-2 rounded-xl bg-orange-100/70 hover:bg-orange-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-orange-900 dark:text-neutral-200 transition-colors shadow-2xs"
+              className="p-1.5 sm:p-2 rounded-xl bg-[#F3D7B5]/70 hover:bg-[#F3D7B5] dark:bg-[#34271F] dark:hover:bg-[#433227] text-[#9E353B] dark:text-[#E88880] transition-colors shadow-2xs cursor-pointer"
               title="Previous Month"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -120,7 +282,7 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
             <button
               id="next-month-btn"
               onClick={() => onNavigateMonth(1)}
-              className="p-2 rounded-xl bg-orange-100/70 hover:bg-orange-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-orange-900 dark:text-neutral-200 transition-colors shadow-2xs"
+              className="p-1.5 sm:p-2 rounded-xl bg-[#F3D7B5]/70 hover:bg-[#F3D7B5] dark:bg-[#34271F] dark:hover:bg-[#433227] text-[#9E353B] dark:text-[#E88880] transition-colors shadow-2xs cursor-pointer"
               title="Next Month"
             >
               <ChevronRight className="w-4 h-4" />
@@ -136,7 +298,7 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
             key={wd.dayIndex} 
             className={`py-2 px-1 rounded-xl text-xs font-bold font-odia ${
               wd.isWeekend 
-                ? 'text-rose-600 dark:text-rose-400 bg-rose-50/70 dark:bg-rose-950/30' 
+                ? 'text-emerald-900 dark:text-emerald-200 bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700/80' 
                 : 'text-neutral-600 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-800/40'
             }`}
           >
@@ -175,14 +337,16 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
               key={day.dateStr}
               id={`calendar-day-cell-${day.dateStr}`}
               onClick={() => onSelectDate(day)}
-              title={`${day.dateStr}: ${day.tithi.nameOdia}${isGovtHoliday ? ' [ଓଡ଼ିଶା ସରକାରୀ ଛୁଟି / Govt Holiday]' : ''} - କ୍ଲିକ୍ କରନ୍ତୁ: ସଂକଳ୍ପ ଓ ବିସ୍ତୃତ ପଞ୍ଚାଙ୍ଗ ଦେଖିବା ପାଇଁ`}
+              title={`${day.dateStr}: ${day.tithi.nameOdia}${isGovtHoliday && day.govtHolidayInfo ? ` [${day.govtHolidayInfo.nameOdia}]` : isGovtHoliday ? ' [ଓଡ଼ିଶା ସରକାରୀ ଛୁଟି / Govt Holiday]' : ''} - କ୍ଲିକ୍ କରନ୍ତୁ: ସଂକଳ୍ପ ଓ ବିସ୍ତୃତ ପଞ୍ଚାଙ୍ଗ ଦେଖିବା ପାଇଁ`}
               className={`group relative min-h-[98px] sm:min-h-[116px] p-2 rounded-2xl transition-all duration-150 border flex flex-col justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500 overflow-hidden ${
                 isSelected
                   ? 'bg-amber-600 dark:bg-amber-600 text-white border-amber-600 dark:border-amber-500 shadow-md ring-2 ring-amber-500/40 transform scale-[1.01]'
                   : isToday
-                  ? 'bg-amber-50/90 dark:bg-neutral-800 border-amber-400 dark:border-amber-500/70 text-neutral-900 dark:text-neutral-100 shadow-2xs ring-1 ring-amber-400/30'
+                  ? isGovtHoliday
+                    ? 'bg-emerald-200/90 dark:bg-emerald-900/80 border-emerald-500 dark:border-emerald-400 text-neutral-900 dark:text-neutral-100 shadow-xs ring-2 ring-emerald-500/60 border-t-4 border-t-emerald-700 dark:border-t-emerald-300'
+                    : 'bg-amber-50/90 dark:bg-neutral-800 border-amber-400 dark:border-amber-500/70 text-neutral-900 dark:text-neutral-100 shadow-2xs ring-1 ring-amber-400/30'
                   : isGovtHoliday
-                  ? 'bg-emerald-50/75 dark:bg-emerald-950/35 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/40 border-emerald-300 dark:border-emerald-700/60 text-neutral-900 dark:text-neutral-100 shadow-2xs'
+                  ? 'bg-emerald-100/80 dark:bg-emerald-950/70 hover:bg-emerald-200/80 dark:hover:bg-emerald-900/70 border-emerald-400 dark:border-emerald-600/90 text-neutral-900 dark:text-neutral-100 shadow-xs border-t-4 border-t-emerald-600 dark:border-t-emerald-400'
                   : 'bg-white dark:bg-neutral-900 hover:bg-amber-50/60 dark:hover:bg-neutral-800/90 border-neutral-200/80 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 shadow-2xs'
               }`}
             >
@@ -190,26 +354,22 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-baseline gap-1">
                   {/* Primary Odia numeral */}
-                  <span className={`text-base sm:text-xl font-bold font-odia leading-none ${
+                  <span className={`text-base sm:text-xl font-extrabold font-odia leading-none ${
                     isSelected 
                       ? 'text-white' 
                       : isGovtHoliday
-                      ? 'text-emerald-800 dark:text-emerald-300'
-                      : isSunday
-                      ? 'text-rose-600 dark:text-rose-400' 
+                      ? 'text-emerald-950 dark:text-emerald-200'
                       : 'text-neutral-900 dark:text-neutral-100'
                   }`}>
                     {day.odiaDayNumber}
                   </span>
 
                   {/* Gregorian day number */}
-                  <span className={`text-[10px] sm:text-xs font-semibold ${
+                  <span className={`text-[10px] sm:text-xs font-bold ${
                     isSelected 
                       ? 'text-amber-100' 
                       : isGovtHoliday
-                      ? 'text-emerald-700/80 dark:text-emerald-400/80'
-                      : isSunday
-                      ? 'text-rose-500/80 dark:text-rose-400/80'
+                      ? 'text-emerald-800 dark:text-emerald-300'
                       : 'text-neutral-400 dark:text-neutral-500'
                   }`}>
                     ({day.gregorianDay})
@@ -217,19 +377,13 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1">
-                  {/* Clear & identifiable Govt Holiday mini tag in green */}
-                  {isGovtHoliday && !isSelected && (
-                    <span 
-                      className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-700 dark:bg-emerald-600 text-white shadow-2xs font-odia shrink-0"
-                      title={day.govtHolidayInfo ? `${day.govtHolidayInfo.nameOdia} (${day.govtHolidayInfo.nameEn}) - ଓଡ଼ିଶା ସରକାରୀ ଛୁଟି` : 'ଓଡ଼ିଶା ସରକାରୀ ଛୁଟି'}
-                    >
-                      ଛୁଟି
-                    </span>
-                  )}
-
                   {/* Odia solar day / Month day e.g. ୭ ବୈ */}
-                  <span className={`text-[9px] sm:text-[10px] font-semibold font-odia px-1.5 py-0.5 rounded ${
-                    isSelected ? 'bg-white/20 text-white' : isGovtHoliday ? 'bg-emerald-100/80 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
+                  <span className={`text-[9px] sm:text-[10px] font-bold font-odia px-1.5 py-0.5 rounded ${
+                    isSelected 
+                      ? 'bg-white/20 text-white' 
+                      : isGovtHoliday 
+                      ? 'bg-emerald-200/90 dark:bg-emerald-900 text-emerald-950 dark:text-emerald-100 border border-emerald-400/80 dark:border-emerald-700' 
+                      : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
                   }`}>
                     {day.odiaDayOfSolarMonthOdia}
                   </span>
@@ -331,10 +485,10 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800 text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3 rounded-md bg-emerald-100 dark:bg-emerald-950 border border-emerald-400 dark:border-emerald-700 flex items-center justify-center">
-              <span className="text-[7px] font-bold text-emerald-800 dark:text-emerald-300 font-odia">ଛୁ</span>
+            <span className="w-4 h-4 rounded-md bg-emerald-100/90 dark:bg-emerald-950 border-t-[3px] border-t-emerald-600 dark:border-t-emerald-400 border border-emerald-400 flex items-center justify-center shrink-0 shadow-2xs" />
+            <span className="font-odia text-emerald-900 dark:text-emerald-300 font-bold">
+              {isOdia ? 'ସରକାରୀ ଛୁଟି (ରବିବାର, ୨ୟ/୪ର୍ଥ ଶନିବାର ଓ ଗେଜେଟ୍ ଛୁଟି)' : 'Govt Holidays (Sundays, 2nd/4th Sat & Gazetted)'}
             </span>
-            <span className="font-odia text-emerald-900 dark:text-emerald-300 font-semibold">{isOdia ? 'ସରକାରୀ ଛୁଟି (Govt Holiday)' : 'Govt Holiday'}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-md bg-amber-500" />

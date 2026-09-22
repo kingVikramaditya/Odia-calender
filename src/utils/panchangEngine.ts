@@ -851,9 +851,14 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
     if (f.id === 'janmashtami' && odiaMonthIndex === 4 && !isShukla && tithiNumber === 8) return true;
     if (f.id === 'ganesh_chaturthi' && odiaMonthIndex === 4 && isShukla && tithiNumber === 4) return true;
     if (f.id === 'nuakhai' && odiaMonthIndex === 4 && isShukla && tithiNumber === 5) return true;
-    if (f.id === 'durga_puja' && odiaMonthIndex === 5 && isShukla && (tithiNumber === 8 || tithiNumber === 9)) return true;
-    if (f.id === 'dussehra' && odiaMonthIndex === 5 && isShukla && tithiNumber === 10) return true;
-    if (f.id === 'deepavali' && odiaMonthIndex === 6 && !isShukla && tithiNumber === 15) return true;
+    // Durga Puja, Dussehra, Kumar Purnima & Deepavali
+    // Sharadiya Durga Puja is celebrated in Ashwina Shukla Paksha (Devi Paksha, following Mahalaya).
+    // In 2026, Mahalaya is Oct 10, Maha Ashtami is Oct 18, and Dussehra is Oct 19.
+    // They must NOT trigger in September during Bhadrapada Shukla Paksha (which is Radhashtami).
+    if (f.id === 'durga_puja' && (dateStr === '2026-10-18' || (gMonth === 9 && isShukla && (tithiNumber === 8 || tithiNumber === 9)))) return true;
+    if (f.id === 'dussehra' && (dateStr === '2026-10-19' || (gMonth === 9 && isShukla && tithiNumber === 10))) return true;
+    if (f.id === 'kumar_purnima' && (dateStr === '2026-10-25' || (gMonth === 9 && isPurnima))) return true;
+    if (f.id === 'deepavali' && (dateStr === '2026-11-08' || (gMonth === 10 && !isShukla && tithiNumber === 15))) return true;
     if (f.id === 'prathamastami' && odiaMonthIndex === 7 && !isShukla && tithiNumber === 8) return true;
     if (f.id === 'makar_sankranti' && gMonth === 0 && (gDay === 14 || gDay === 15)) return true;
     if (f.id === 'saraswati_puja' && odiaMonthIndex === 9 && isShukla && tithiNumber === 5) return true;
@@ -861,6 +866,24 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
     return false;
   });
   events.push(...matchedPred);
+
+  // Radhashtami & Sunia in Bhadrapada Shukla Ashtami (September)
+  if (gMonth === 8 && isShukla && tithiNumber === 8) {
+    events.push({
+      id: `radhashtami_sunia_${dateStr}`,
+      titleOdia: 'ରାଧାଷ୍ଟମୀ ଓ ସୁନିଆଁ (ଓଡ଼ିଆ ଅଙ୍କ ନୂତନ ବର୍ଷାରମ୍ଭ)',
+      titleEn: 'Radhashtami & Sunia (Odia Royal Anka Year)',
+      type: 'festival',
+      significanceOdia: 'ଭାଦ୍ରବ ଶୁକ୍ଳ ଅଷ୍ଟମୀ ପବିତ୍ର ରାଧାଷ୍ଟମୀ ଏବଂ ଓଡ଼ିଶାର ଐତିହାସିକ ରାଜକୀୟ ଅଙ୍କ ଗଣନା ପ୍ରବେଶ ପର୍ବ "ସୁନିଆଁ" । ପୁରୀ ଶ୍ରୀମନ୍ଦିରରେ ଗଜପତି ମହାରାଜାଙ୍କ ନୂତନ ଅଙ୍କ ପ୍ରଚଳନ ହୁଏ ।',
+      significanceEn: 'Bhadrapada Shukla Ashtami celebrating Radhashtami and the historic Odia royal calendar New Year "Sunia" for Gajapati Maharaja.',
+      ritualsOdia: 'ରାଧାକୃଷ୍ଣ ପୂଜା, ସୁନିଆଁ ଭେଟି ଓ ନୂତନ ଖଡ଼ି ଛୁଆଁ ।',
+      ritualsEn: 'Radha-Krishna devotion and ceremonial Sunia accounts initiation.',
+      deityOdia: 'ଶ୍ରୀରାଧା ଠାକୁରାଣୀ ଓ ଶ୍ରୀଜଗନ୍ନାଥ',
+      deityEn: 'Sri Radha & Lord Jagannath',
+      tagColor: 'amber',
+      dateStr,
+    });
+  }
 
   // Manabasa Gurubar in Margasira Thursdays
   if (odiaMonthIndex === 7 && dayOfWeek === 4) {
@@ -914,27 +937,82 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
     });
   }
 
-  // Official Odisha Government Holidays Integration (from odishacalendar.com)
-  const govtHoliday = ODISHA_GOVT_HOLIDAY_MAP.get(dateStr);
-  if (govtHoliday) {
-    const existingGovtEvent = events.find(e => e.isGovtHoliday || e.titleOdia.includes(govtHoliday.nameOdia));
+  // Official Odisha Government Holidays Integration (from odishacalendar.com & Odisha Govt Gazette)
+  const mapHoliday = ODISHA_GOVT_HOLIDAY_MAP.get(dateStr);
+  const isSunday = dayOfWeek === 0;
+  const isSaturday = dayOfWeek === 6;
+  const isSecondSaturday = isSaturday && Math.ceil(gDay / 7) === 2;
+  const isFourthSaturday = isSaturday && Math.ceil(gDay / 7) === 4;
+  const isWeekendGovtHoliday = isSunday || isSecondSaturday || isFourthSaturday;
+
+  let weekendHolidayInfo: {
+    nameOdia: string;
+    nameEn: string;
+    type: 'gazetted';
+    descriptionOdia: string;
+    descriptionEn: string;
+    source: string;
+  } | undefined = undefined;
+
+  if (isSunday) {
+    weekendHolidayInfo = {
+      nameOdia: 'ରବିବାର ସାପ୍ତାହିକ ଛୁଟି',
+      nameEn: 'Sunday (Weekly Govt Holiday)',
+      type: 'gazetted',
+      descriptionOdia: 'ସାପ୍ତାହିକ ସରକାରୀ ଛୁଟି । ସମସ୍ତ ସରକାରୀ କାର୍ଯ୍ୟାଳୟ, ବିଦ୍ୟାଳୟ, କଲେଜ ଓ ବ୍ୟାଙ୍କ ଛୁଟି ।',
+      descriptionEn: 'Weekly government and general public holiday (Sunday).',
+      source: 'ଓଡ଼ିଶା ସରକାରୀ ଗେଜେଟ୍',
+    };
+  } else if (isSecondSaturday) {
+    weekendHolidayInfo = {
+      nameOdia: 'ଦ୍ୱିତୀୟ ଶନିବାର ସରକାରୀ ଛୁଟି',
+      nameEn: '2nd Saturday (Govt & Bank Holiday)',
+      type: 'gazetted',
+      descriptionOdia: 'ଓଡ଼ିଶା ରାଜ୍ୟ ସରକାରୀ କାର୍ଯ୍ୟାଳୟ, ଶିକ୍ଷାନୁଷ୍ଠାନ ଓ ସମସ୍ତ ବ୍ୟାଙ୍କ ନିମନ୍ତେ ଦ୍ୱିତୀୟ ଶନିବାର ସରକାରୀ ଛୁଟି ।',
+      descriptionEn: 'Official Odisha State Government and Bank Holiday (Second Saturday).',
+      source: 'ଓଡ଼ିଶା ସରକାରୀ ଗେଜେଟ୍',
+    };
+  } else if (isFourthSaturday) {
+    weekendHolidayInfo = {
+      nameOdia: 'ଚତୁର୍ଥ ଶନିବାର ସରକାରୀ ଛୁଟି',
+      nameEn: '4th Saturday (Govt & Bank Holiday)',
+      type: 'gazetted',
+      descriptionOdia: 'ଓଡ଼ିଶା ରାଜ୍ୟ ସରକାରୀ କାର୍ଯ୍ୟାଳୟ ଓ ସମସ୍ତ ବ୍ୟାଙ୍କ ନିମନ୍ତେ ଚତୁର୍ଥ ଶନିବାର ସରକାରୀ ଛୁଟି ।',
+      descriptionEn: 'Official Odisha State Government and Bank Holiday (Fourth Saturday).',
+      source: 'ଓଡ଼ିଶା ସରକାରୀ ଗେଜେଟ୍',
+    };
+  }
+
+  const isGovtHoliday = !!mapHoliday || isWeekendGovtHoliday;
+
+  if (mapHoliday) {
+    const existingGovtEvent = events.find(e => e.isGovtHoliday || e.titleOdia.includes(mapHoliday.nameOdia));
     if (existingGovtEvent) {
       existingGovtEvent.isGovtHoliday = true;
-      existingGovtEvent.significanceOdia = `${existingGovtEvent.significanceOdia} (ଓଡ଼ିଶା ସରକାରୀ ${govtHoliday.type === 'gazetted' ? 'ଗେଜେଟେଡ୍ ଛୁଟି' : 'ଐଚ୍ଛିକ ଛୁଟି'} - odishacalendar.com)`;
+      existingGovtEvent.significanceOdia = `${existingGovtEvent.significanceOdia} (ଓଡ଼ିଶା ସରକାରୀ ${mapHoliday.type === 'gazetted' ? 'ଗେଜେଟେଡ୍ ଛୁଟି' : 'ଐଚ୍ଛିକ ଛୁଟି'} - odishacalendar.com)`;
     } else {
       events.unshift({
         id: `govt_hol_${dateStr}`,
-        titleOdia: govtHoliday.nameOdia,
-        titleEn: govtHoliday.nameEn,
+        titleOdia: mapHoliday.nameOdia,
+        titleEn: mapHoliday.nameEn,
         type: 'govt_holiday',
-        significanceOdia: `${govtHoliday.descriptionOdia} (ଓଡ଼ିଶା ସରକାରୀ ${govtHoliday.type === 'gazetted' ? 'ଗେଜେଟେଡ୍ ଛୁଟି' : 'ଐଚ୍ଛିକ ଛୁଟି'} - odishacalendar.com)`,
-        significanceEn: `${govtHoliday.descriptionEn} (Odisha Govt ${govtHoliday.type === 'gazetted' ? 'Gazetted Holiday' : 'Optional Holiday'} - odishacalendar.com)`,
+        significanceOdia: `${mapHoliday.descriptionOdia} (ଓଡ଼ିଶା ସରକାରୀ ${mapHoliday.type === 'gazetted' ? 'ଗେଜେଟେଡ୍ ଛୁଟି' : 'ଐଚ୍ଛିକ ଛୁଟି'} - odishacalendar.com)`,
+        significanceEn: `${mapHoliday.descriptionEn} (Odisha Govt ${mapHoliday.type === 'gazetted' ? 'Gazetted Holiday' : 'Optional Holiday'} - odishacalendar.com)`,
         isGovtHoliday: true,
         tagColor: 'rose',
         dateStr,
       });
     }
   }
+
+  const combinedHolidayInfo = mapHoliday ? {
+    nameOdia: mapHoliday.nameOdia,
+    nameEn: mapHoliday.nameEn,
+    type: mapHoliday.type,
+    descriptionOdia: mapHoliday.descriptionOdia + (weekendHolidayInfo ? ` [${weekendHolidayInfo.nameOdia}]` : ''),
+    descriptionEn: mapHoliday.descriptionEn + (weekendHolidayInfo ? ` [${weekendHolidayInfo.nameEn}]` : ''),
+    source: mapHoliday.source || 'ଓଡ଼ିଶା ସରକାରୀ ଗେଜେଟ୍',
+  } : weekendHolidayInfo;
 
   return {
     date,
@@ -943,16 +1021,9 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
     gregorianDay: gDay,
     gregorianMonth: gMonth,
     gregorianYear: gYear,
-    isGovtHoliday: !!govtHoliday,
-    govtHolidayType: govtHoliday ? govtHoliday.type : undefined,
-    govtHolidayInfo: govtHoliday ? {
-      nameOdia: govtHoliday.nameOdia,
-      nameEn: govtHoliday.nameEn,
-      type: govtHoliday.type,
-      descriptionOdia: govtHoliday.descriptionOdia,
-      descriptionEn: govtHoliday.descriptionEn,
-      source: govtHoliday.source,
-    } : undefined,
+    isGovtHoliday,
+    govtHolidayType: mapHoliday ? mapHoliday.type : (isWeekendGovtHoliday ? 'gazetted' : undefined),
+    govtHolidayInfo: combinedHolidayInfo,
     
     odiaDayNumber: toOdiaNumber(gDay),
     odiaMonthIndex,
@@ -1087,6 +1158,7 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
 
     events,
     muhurtas: matchedMuhurtas,
+    location,
   };
 }
 

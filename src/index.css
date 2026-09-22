@@ -48,14 +48,42 @@
 }
 
 @media print {
-  .no-print {
+  @page {
+    size: auto;
+    margin: 8mm;
+  }
+  
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide everything except the dedicated print portal during print */
+  body > *:not(#print-document-portal) {
     display: none !important;
   }
-  .print-only {
+
+  /* Force display of the dedicated print portal */
+  #print-document-portal {
     display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    color: #000000 !important;
   }
-  body {
-    background: white !important;
-    color: black !important;
+
+  .page-break-after {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .page-break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 }

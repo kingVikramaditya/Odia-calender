@@ -389,6 +389,7 @@ export default function App() {
           day={selectedDayPanchang}
           monthDays={monthDays}
           language={language}
+          location={selectedLocation}
         />
       )}
 

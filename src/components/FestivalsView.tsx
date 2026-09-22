@@ -10,7 +10,7 @@ import {
   CheckCircle2,
   Landmark
 } from 'lucide-react';
-import { COMPREHENSIVE_FESTIVALS, EKADASHI_CALENDAR } from '../data/festivalsData';
+import { COMPREHENSIVE_FESTIVALS, EKADASHI_EVENTS } from '../data/festivalsData';
 import { ODISHA_GOVT_HOLIDAYS_2026 } from '../data/odishaGovtHolidays';
 import { LanguageMode, FestivalEvent } from '../types';
 
@@ -57,9 +57,11 @@ export const FestivalsView: React.FC<FestivalsViewProps> = ({
   const filteredEvents = useMemo(() => {
     let list: FestivalEvent[] = [];
     if (selectedCategory === 'all') {
-      list = [...COMPREHENSIVE_FESTIVALS, ...govtHolidayEvents];
+      list = [...COMPREHENSIVE_FESTIVALS, ...EKADASHI_EVENTS, ...govtHolidayEvents];
     } else if (selectedCategory === 'govt_holiday') {
       list = govtHolidayEvents;
+    } else if (selectedCategory === 'ekadashi') {
+      list = EKADASHI_EVENTS;
     } else {
       list = COMPREHENSIVE_FESTIVALS.filter(e => e.type === selectedCategory);
     }
@@ -67,13 +69,20 @@ export const FestivalsView: React.FC<FestivalsViewProps> = ({
     const q = searchQuery.trim().toLowerCase();
     if (!q) return list;
 
-    return list.filter(e => 
-      e.titleOdia.toLowerCase().includes(q) ||
-      e.titleEn.toLowerCase().includes(q) ||
-      e.significanceOdia.toLowerCase().includes(q) ||
-      e.significanceEn.toLowerCase().includes(q) ||
-      (e.dateStr && e.dateStr.includes(q))
-    );
+    const normQ = q.replace(/[\u0B42]/g, '\u0B41').replace(/[\u0B40]/g, '\u0B3F').replace(/\s+/g, '');
+    return list.filter(e => {
+      const matchPlain = 
+        e.titleOdia.toLowerCase().includes(q) ||
+        e.titleEn.toLowerCase().includes(q) ||
+        e.significanceOdia.toLowerCase().includes(q) ||
+        e.significanceEn.toLowerCase().includes(q) ||
+        (e.dateStr && e.dateStr.includes(q));
+      if (matchPlain) return true;
+
+      const normTitle = e.titleOdia.toLowerCase().replace(/[\u0B42]/g, '\u0B41').replace(/[\u0B40]/g, '\u0B3F').replace(/\s+/g, '');
+      const normSig = e.significanceOdia.toLowerCase().replace(/[\u0B42]/g, '\u0B41').replace(/[\u0B40]/g, '\u0B3F').replace(/\s+/g, '');
+      return normTitle.includes(normQ) || normSig.includes(normQ);
+    });
   }, [selectedCategory, searchQuery, govtHolidayEvents]);
 
   return (
@@ -158,7 +167,7 @@ export const FestivalsView: React.FC<FestivalsViewProps> = ({
                   </span>
 
                   {fest.dateStr && (
-                    <span className="text-[10px] font-bold font-odia text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-md">
+                    <span className="text-[11px] font-bold font-odia text-orange-800 dark:text-orange-300 bg-orange-100/80 dark:bg-orange-950/80 px-2 py-0.5 rounded-lg border border-orange-200 dark:border-orange-800">
                       {fest.dateStr}
                     </span>
                   )}

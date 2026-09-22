@@ -327,12 +327,12 @@ export const DayPanchangModal: React.FC<DayPanchangModalProps> = ({
                 </div>
 
                 {/* Meaning & Explanations (Justified for balanced layout) */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-neutral-850/60 border border-neutral-200/80 dark:border-neutral-700/80 space-y-2">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-neutral-900/90 border border-neutral-200/80 dark:border-neutral-700/80 space-y-2.5">
                   <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-orange-700 dark:text-orange-400 uppercase tracking-wide">
-                    <Info className="w-4 h-4" />
+                    <Info className="w-4 h-4 text-orange-600 dark:text-orange-400 shrink-0" />
                     <span>ସଂକଳ୍ପର ଭାବାର୍ଥ ଓ କାଳ-ସ୍ଥିତି (Significance in Odia)</span>
                   </div>
-                  <p className="text-sm sm:text-base text-neutral-800 dark:text-neutral-200 leading-relaxed font-odia whitespace-pre-line text-justify">
+                  <p className="text-sm sm:text-base text-neutral-800 dark:text-neutral-100 leading-relaxed font-odia whitespace-pre-line text-justify">
                     {sankalpaType === 'laghu' ? sankalpa.laghuOdiaMeaning : sankalpa.vistrutOdiaMeaning}
                   </p>
                 </div>

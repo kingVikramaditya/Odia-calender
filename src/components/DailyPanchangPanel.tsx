@@ -131,6 +131,24 @@ export const DailyPanchangPanel: React.FC<DailyPanchangPanelProps> = ({
         </div>
       </div>
 
+      {/* Odisha Govt Holiday Notice (Sundays, 2nd/4th Saturday, or official gazette holidays) */}
+      {day.isGovtHoliday && day.govtHolidayInfo && !day.events.some(e => e.isGovtHoliday) && (
+        <div className="p-3 rounded-2xl space-y-1.5 transition-all border bg-emerald-100/80 dark:bg-emerald-950/60 border-emerald-400 dark:border-emerald-700/80 shadow-xs border-t-2 border-t-emerald-600 dark:border-t-emerald-400">
+          <div className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5 text-xs font-bold font-odia text-emerald-950 dark:text-emerald-200">
+              <Landmark className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <span>{isOdia ? day.govtHolidayInfo.nameOdia : isBoth ? `${day.govtHolidayInfo.nameOdia} (${day.govtHolidayInfo.nameEn})` : day.govtHolidayInfo.nameEn}</span>
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-700 text-white font-odia shrink-0 shadow-2xs">
+              {isOdia ? 'ସରକାରୀ ଛୁଟି' : 'Govt Holiday'}
+            </span>
+          </div>
+          <p className="text-xs text-neutral-700 dark:text-neutral-300 font-odia leading-relaxed">
+            {isOdia ? day.govtHolidayInfo.descriptionOdia : day.govtHolidayInfo.descriptionEn}
+          </p>
+        </div>
+      )}
+
       {/* Festivals / Observance Highlight on this day (if any) */}
       {day.events && day.events.length > 0 && (
         <div className="space-y-2">
@@ -141,13 +159,13 @@ export const DailyPanchangPanel: React.FC<DailyPanchangPanelProps> = ({
                 key={evt.id}
                 className={`p-3 rounded-2xl space-y-1.5 transition-all border ${
                   isGovt
-                    ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700/60 shadow-xs'
+                    ? 'bg-emerald-100/80 dark:bg-emerald-950/60 border-emerald-400 dark:border-emerald-700/80 shadow-xs border-t-2 border-t-emerald-600 dark:border-t-emerald-400'
                     : 'bg-neutral-50/80 dark:bg-neutral-800/60 border-neutral-200/80 dark:border-neutral-700/80'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className={`flex items-center gap-1.5 text-xs font-bold font-odia ${
-                    isGovt ? 'text-emerald-900 dark:text-emerald-300' : 'text-neutral-900 dark:text-neutral-200'
+                    isGovt ? 'text-emerald-900 dark:text-emerald-200' : 'text-neutral-900 dark:text-neutral-200'
                   }`}>
                     {isGovt ? (
                       <Landmark className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -158,7 +176,7 @@ export const DailyPanchangPanel: React.FC<DailyPanchangPanelProps> = ({
                   </span>
                   {isGovt && (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white font-odia shrink-0 shadow-2xs">
-                      ସରକାରୀ ଛୁଟି
+                      {isOdia ? 'ସରକାରୀ ଛୁଟି' : 'Govt Holiday'}
                     </span>
                   )}
                 </div>

@@ -74,8 +74,12 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => onSetView('calendar')}
               className="flex items-center gap-2.5 cursor-pointer group"
             >
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-                <Calendar className="w-5 h-5" />
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-orange-500/30 dark:ring-orange-400/40 shadow-sm shrink-0 group-hover:scale-105 transition-transform bg-neutral-900">
+                <img 
+                  src="/logo.jpg" 
+                  alt={isOdia ? 'ଓଡ଼ିଆ ପାଞ୍ଜିକା' : 'Odia Panjika'} 
+                  className="w-full h-full object-cover object-center"
+                />
               </div>
 
               <div>

@@ -134,20 +134,23 @@ export function generateSankalpa(
   const yogaSanskrit = `${day.yoga.nameOdia} ଯୋଗେ`;
   const karanaSanskrit = `${day.karana.nameOdia} କରଣେ`;
 
+  const solarMonthStr = day.solarMonthNameOdia || day.odiaMonthNameOdia;
+  const lunarMonthStr = day.lunarMonthNameOdia || day.odiaMonthNameOdia;
+
   // 1. Laghu Sankalpa (ଲଘୁ ସଂକଳ୍ପ) - Daily concise mantra for morning puja / home rituals
   const laghuSanskrit = `ଓଁ ବିଷ୍ଣୁର୍ବିଷ୍ଣୁର୍ବିଷ୍ଣୁଃ ଶ୍ରୀମଦ୍ ଭଗବତୋ ମହାପୁରୁଷସ୍ୟ ବିଷ୍ଣୋରାଜ୍ଞୟା ପ୍ରବର୍ତ୍ତମାନସ୍ୟ, ଅଦ୍ୟ ବ୍ରହ୍ମଣୋ ଦ୍ୱିତୀୟ ପରାର୍ଦ୍ଧେ ଶ୍ୱେତବାରାହ କଳ୍ପେ ବୈବସ୍ୱତ ମନ୍ୱନ୍ତରେ ଅଷ୍ଟାବିଂଶତିତମେ କଳିଯୁଗେ କଳିପ୍ରଥମ ଚରଣେ ଭାରତବର୍ଷେ ଉତ୍କଳ ପ୍ରଦେଶେ (ପୁରୁଷୋତ୍ତମ କ୍ଷେତ୍ରେ)...
-${day.odiaMonthNameOdia} ମାସେ, ${pakshaSanskrit}, ${tithiSanskrit} ତିଥୌ, ${varaSanskrit}, ${nakshatraSanskrit}...
+${lunarMonthStr} ମାସେ, ${pakshaSanskrit}, ${tithiSanskrit} ତିଥୌ, ${varaSanskrit}, ${nakshatraSanskrit}...
 [${gotra}] ଗୋତ୍ରସ୍ୟ [${name}] ନାମାହଂ, ମମ ସମସ୍ତ ପାପକ୍ଷୟ ପୂର୍ବକ ଆୟୁ-ଆରୋଗ୍ୟ-ଐଶ୍ୱର୍ଯ୍ୟ ପ୍ରାପ୍ତ୍ୟର୍ଥେ, ଶ୍ରୀଜଗନ୍ନାଥ ମହାପ୍ରଭୁ ପ୍ରୀତ୍ୟର୍ଥେ ଶୁଭ କର୍ମ / ଦୈନିକ ପୂଜନଂ କରିଷ୍ୟେ ।`;
 
   const laghuOdiaMeaning = `ଓଁ ବିଷ୍ଣୁ, ବିଷ୍ଣୁ, ବିଷ୍ଣୁ! ପରମପୁରୁଷ ଶ୍ରୀବିଷ୍ଣୁଙ୍କ ଆଜ୍ଞାରେ ଏହି ସୃଷ୍ଟିର ଦ୍ୱିତୀୟ ପରାର୍ଦ୍ଧ, ଶ୍ୱେତବାରାହ କଳ୍ପ, ବୈବସ୍ୱତ ମନ୍ୱନ୍ତର ଓ କଳିଯୁଗର ପ୍ରଥମ ଚରଣରେ ପବିତ୍ର ଭାରତବର୍ଷର ଉତ୍କଳ ଭୂମି (ଶ୍ରୀକ୍ଷେତ୍ର) ରେ;
-ଆଜି ସୌର ଓ ଚାନ୍ଦ୍ର ${day.odiaMonthNameOdia} ମାସ, ${day.tithi.pakshaOdia}, ${day.tithi.nameOdia} ତିଥି, ${day.varaOdia}, ${day.nakshatra.nameOdia} ନକ୍ଷତ୍ରରେ;
+ଆଜି ସୌର ${solarMonthStr} ${toOdiaNumber(day.odiaDayOfSolarMonth)} ଦିନ, ଚାନ୍ଦ୍ର ${lunarMonthStr} ମାସ, ${day.tithi.pakshaOdia}, ${day.tithi.nameOdia} ତିଥି, ${day.varaOdia}, ${day.nakshatra.nameOdia} ନକ୍ଷତ୍ରରେ;
 ମୁଁ [${gotra}] ଗୋତ୍ରର [${name}], ମୋର ସମସ୍ତ ପାପ ଓ ବାଧାବିଘ୍ନର ବିନାଶ ପୂର୍ବକ ଆୟୁ, ଉତ୍ତମ ସ୍ୱାସ୍ଥ୍ୟ, ଐଶ୍ୱର୍ଯ୍ୟ ଓ ପରିବାର ମଙ୍ଗଳ ନିମନ୍ତେ ପରମବ୍ରହ୍ମ ଶ୍ରୀଜଗନ୍ନାଥ ମହାପ୍ରଭୁ ଓ ଇଷ୍ଟଦେବଙ୍କ ପ୍ରୀତି ଅର୍ଥେ ଏହି ଶୁଭ କାର୍ଯ୍ୟ / ପୂଜାର ସଂକଳ୍ପ କରୁଅଛି ।`;
 
   // 2. Vistrut Sankalpa (ବିସ୍ତୃତ ସଂକଳ୍ପ) - Full classical temple / ceremonial ephemeris recitation
   const vistrutSanskrit = `ଓଁ ବିଷ୍ଣୁର୍ବିଷ୍ଣୁର୍ବିଷ୍ଣୁଃ ଶ୍ରୀମଦ୍ ଭଗବତୋ ମହାପୁରୁଷସ୍ୟ ବିଷ୍ଣୋରାଜ୍ଞୟା ପ୍ରବର୍ତ୍ତମାନସ୍ୟ ଅଦ୍ୟ ବ୍ରହ୍ମଣୋ ଦ୍ୱିତୀୟ ପରାର୍ଦ୍ଧେ ଶ୍ୱେତବାରାହ କଳ୍ପେ ବୈବସ୍ୱତ ମନ୍ୱନ୍ତରେ ଅଷ୍ଟାବିଂଶତିତମେ କଳିଯୁଗେ କଳିପ୍ରଥମ ଚରଣେ ଭାରତବର୍ଷେ ଭରତଖଣ୍ଡେ ଜମ୍ବୁଦ୍ୱୀପେ ଦଣ୍ଡକାରଣ୍ୟେ ପୁଣ୍ୟତମେ ଉତ୍କଳ ପ୍ରଦେଶେ (ପୁରୁଷୋତ୍ତମ ଧାମେ / ଶ୍ରୀକ୍ଷେତ୍ରେ) ବୌଦ୍ଧାବତାରେ ରାଜ୍ଞାଂ ପରମେଶ୍ୱରସ୍ୟ ଭୂମୌ,
 ଶ୍ରୀମନ୍ ନୃପତେ ଶକାବ୍ଦେ ${toOdiaNumber(day.sakabda)}, ବିକ୍ରମ ସମ୍ବତ ${toOdiaNumber(day.vikramSamvat)}, ଓଡ଼ିଆ ସାଲ ${toOdiaNumber(day.odiaYearSal)}, ${samvatsaraName} ନାମ ସମ୍ବତ୍ସରେ,
 ${ayana.sanskrit}, ${rutuSanskrit},
-ସୌରମାନେନ ${day.odiaMonthNameOdia} ମାସେ ${toOdiaNumber(day.odiaDayOfSolarMonth)} ଦିବସେ, ଚାନ୍ଦ୍ରମାନେନ ${day.odiaMonthNameOdia} ମାସେ,
+ସୌରମାନେନ ${solarMonthStr} ମାସେ ${toOdiaNumber(day.odiaDayOfSolarMonth)} ଦିବସେ, ଚାନ୍ଦ୍ରମାନେନ ${lunarMonthStr} ମାସେ,
 ${pakshaSanskrit}, ${tithiSanskrit},
 ${varaSanskrit}, ${nakshatraSanskrit},
 ${yogaSanskrit}, ${karanaSanskrit},
@@ -161,7 +164,7 @@ ${yogaSanskrit}, ${karanaSanskrit},
 • ପବିତ୍ର ଭୂଗୋଳ: ଭାରତବର୍ଷ, ଭରତଖଣ୍ଡ, ଜମ୍ବୁଦ୍ୱୀପ, ଉତ୍କଳ ପ୍ରଦେଶ (ପୁରୁଷୋତ୍ତମ ଶ୍ରୀକ୍ଷେତ୍ର)
 • କାଳ ଗଣନା: ${toOdiaNumber(day.sakabda)} ଶକାବ୍ଦ, ${toOdiaNumber(day.vikramSamvat)} ବିକ୍ରମ ସମ୍ବତ, ${toOdiaNumber(day.odiaYearSal)} ଓଡ଼ିଆ ସାଲ, ${samvatsaraName} ସମ୍ବତ୍ସର
 • ଅୟନ ଓ ଋତୁ: ${ayana.odia}, ${day.rutuOdia} ଋତୁ
-• ମାସ ଓ ଦିବସ: ସୌର ${day.odiaMonthNameOdia} ${toOdiaNumber(day.odiaDayOfSolarMonth)} ଦିନ, ଚାନ୍ଦ୍ର ${day.odiaMonthNameOdia} ମାସ
+• ମାସ ଓ ଦିବସ: ସୌର ${solarMonthStr} ${toOdiaNumber(day.odiaDayOfSolarMonth)} ଦିନ, ଚାନ୍ଦ୍ର ${lunarMonthStr} ମାସ
 • ପକ୍ଷ ଓ ତିଥି: ${day.tithi.pakshaOdia}, ${day.tithi.nameOdia} (${day.tithi.endTime ? `ସମାପ୍ତ: ${toOdiaNumber(day.tithi.endTime)}` : ''})
 • ବାର ଓ ନକ୍ଷତ୍ର: ${day.varaOdia}, ${day.nakshatra.nameOdia} (${day.nakshatra.pada} ପାଦ)
 • ଯୋଗ ଓ କରଣ: ${day.yoga.nameOdia} ଯୋଗ, ${day.karana.nameOdia} କରଣ
@@ -181,9 +184,9 @@ ${yogaSanskrit}, ${karanaSanskrit},
     ayanaSanskrit: ayana.sanskrit,
     rutuOdia: day.rutuOdia,
     rutuSanskrit,
-    solarMonthOdia: day.odiaMonthNameOdia,
+    solarMonthOdia: solarMonthStr,
     solarDayOdia: day.odiaDayOfSolarMonthOdia,
-    lunarMonthOdia: day.odiaMonthNameOdia,
+    lunarMonthOdia: lunarMonthStr,
     pakshaOdia: day.tithi.pakshaOdia,
     pakshaSanskrit,
     tithiOdia: day.tithi.nameOdia,

@@ -42,7 +42,7 @@ export const FestivalListCard: React.FC<FestivalListCardProps> = ({
         </div>
 
         <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 font-odia">
-          {festiveDays.length} ଟି ପର୍ବ
+          {festiveDays.length} {isOdia ? 'ଟି ପର୍ବ' : 'Events'}
         </span>
       </div>
 
@@ -57,12 +57,12 @@ export const FestivalListCard: React.FC<FestivalListCardProps> = ({
           const title = firstEvent 
             ? (isOdia ? firstEvent.titleOdia : isBoth ? `${firstEvent.titleOdia} (${firstEvent.titleEn})` : firstEvent.titleEn)
             : isEkadashi
-            ? `${day.tithi.nameOdia} (${day.tithi.pakshaOdia})`
+            ? (isOdia ? `${day.tithi.nameOdia} (${day.tithi.pakshaOdia})` : `${day.tithi.nameEn} (${day.tithi.pakshaEn})`)
             : isPurnima
-            ? `${day.odiaMonthNameOdia} ପୂର୍ଣ୍ଣିମା`
+            ? (isOdia ? `${day.odiaMonthNameOdia} ପୂର୍ଣ୍ଣିମା` : `${day.odiaMonthNameEn} Purnima`)
             : isAmavasya
-            ? `${day.odiaMonthNameOdia} ଅମାବାସ୍ୟା`
-            : `${day.odiaMonthNameOdia} ସଂକ୍ରାନ୍ତି`;
+            ? (isOdia ? `${day.odiaMonthNameOdia} ଅମାବାସ୍ୟା` : `${day.odiaMonthNameEn} Amavasya`)
+            : (isOdia ? `${day.odiaMonthNameOdia} ସଂକ୍ରାନ୍ତି` : `${day.odiaMonthNameEn} Sankranti`);
 
           const isGovt = day.isGovtHoliday || day.events.some(e => e.isGovtHoliday || e.type === 'govt_holiday');
 
@@ -85,16 +85,18 @@ export const FestivalListCard: React.FC<FestivalListCardProps> = ({
                   </span>
                   {isGovt && (
                     <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 shrink-0 font-odia">
-                      ଛୁଟି
+                      {isOdia ? 'ଛୁଟି' : 'Holiday'}
                     </span>
                   )}
                 </div>
 
                 <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-odia">
                   <span className={`font-semibold ${isGovt ? 'text-rose-600 dark:text-rose-400' : 'text-orange-700 dark:text-orange-400'}`}>
-                    {day.odiaDayNumber} ତାରିଖ ({day.gregorianDay} {day.date.toLocaleString('default', { month: 'short' })})
+                    {isOdia 
+                      ? `${day.odiaDayNumber} ତାରିଖ (${day.gregorianDay} ${day.date.toLocaleString('default', { month: 'short' })})`
+                      : `${day.gregorianDay} ${day.date.toLocaleString('default', { month: 'short' })}`}
                   </span>
-                  <span>• {day.varaShortOdia}</span>
+                  <span>• {isOdia ? day.varaShortOdia : day.varaEn.slice(0, 3)}</span>
                 </div>
               </div>
 

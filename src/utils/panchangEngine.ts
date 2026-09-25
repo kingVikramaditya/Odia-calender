@@ -26,6 +26,16 @@ function padZero(num: number): string {
   return num < 10 ? `0${num}` : `${num}`;
 }
 
+/**
+ * Robustly formats a Date into 'YYYY-MM-DD' in LOCAL timezone (never shifts to UTC)
+ */
+export function formatLocalDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 export function formatMinutesToTime(minutesFromMidnight: number): string {
   let normalized = ((minutesFromMidnight % 1440) + 1440) % 1440;
   let hours = Math.floor(normalized / 60);
@@ -34,6 +44,38 @@ export function formatMinutesToTime(minutesFromMidnight: number): string {
   hours = hours % 12;
   hours = hours ? hours : 12;
   return `${padZero(hours)}:${padZero(minutes)} ${ampm}`;
+}
+
+/**
+ * Converts formatted time string like '06:30 AM' or '05:45 PM' into minutes from midnight
+ */
+export function parseTimeToMinutes(timeStr: string): number {
+  if (!timeStr) return 0;
+  const match = timeStr.trim().match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!match) return 0;
+  let hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+  const period = match[3].toUpperCase();
+  if (period === 'PM' && hours < 12) hours += 12;
+  if (period === 'AM' && hours === 12) hours = 0;
+  return hours * 60 + minutes;
+}
+
+/**
+ * Checks if the given Date currently falls within a start and end time window (e.g. '06:05 AM' - '07:35 AM')
+ */
+export function isCurrentTimeInWindow(currentTime: Date, startStr: string, endStr: string): boolean {
+  if (!startStr || !endStr) return false;
+  const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+  const startMin = parseTimeToMinutes(startStr);
+  const endMin = parseTimeToMinutes(endStr);
+  
+  if (startMin <= endMin) {
+    return currentMinutes >= startMin && currentMinutes < endMin;
+  } else {
+    // Crosses midnight (e.g. 11:30 PM to 01:00 AM)
+    return currentMinutes >= startMin || currentMinutes < endMin;
+  }
 }
 
 // 7 Choghadiya definitions as per Drik Panchang
@@ -306,12 +348,12 @@ const DRIK_VERIFIED_DATA: Record<string, DrikVerifiedRecord> = {
 /**
  * Calculates authentic, high-precision Drik Panchang with Lahiri Ayanamsha
  */
-export function calculatePanchang(date: Date, location: LocationInfo): PanchangDay {
+export function calculatePanchang(date: Date, location: LocationInfo, liveTime?: Date): PanchangDay {
   const gYear = date.getFullYear();
   const gMonth = date.getMonth(); // 0-11
   const gDay = date.getDate();
   const dayOfWeek = date.getDay(); // 0 = Sun, 6 = Sat
-  const dateStr = `${gYear}-${padZero(gMonth + 1)}-${padZero(gDay)}`;
+  const dateStr = formatLocalDateKey(date);
 
   // Astronomical Sunrise & Sunset for the selected location coordinates
   const lat = location.lat || 19.8135;
@@ -354,49 +396,64 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
   const sakabda = isAfterMesha ? gYear - 78 : gYear - 79;
   const vikramSamvat = isAfterMesha ? gYear + 57 : gYear + 56;
 
-  // Odia Solar Month (Sankranti transition points)
-  let odiaMonthIndex = (gMonth + 8) % 12;
+  // Odia Solar Month (Sankranti transition points - ସୌର ମାସ ଓ ସୌର ଦିନ)
+  let solarMonthIndex = (gMonth + 8) % 12;
   let odiaSolarDay = 1;
 
   if (gMonth === 3) {
-    if (gDay >= 14) { odiaMonthIndex = 0; odiaSolarDay = gDay - 13; }
-    else { odiaMonthIndex = 11; odiaSolarDay = gDay + 16; }
+    if (gDay >= 14) { solarMonthIndex = 0; odiaSolarDay = gDay - 13; }
+    else { solarMonthIndex = 11; odiaSolarDay = gDay + 16; }
   } else if (gMonth === 4) {
-    if (gDay >= 15) { odiaMonthIndex = 1; odiaSolarDay = gDay - 14; }
-    else { odiaMonthIndex = 0; odiaSolarDay = gDay + 17; }
+    if (gDay >= 15) { solarMonthIndex = 1; odiaSolarDay = gDay - 14; }
+    else { solarMonthIndex = 0; odiaSolarDay = gDay + 17; }
   } else if (gMonth === 5) {
-    if (gDay >= 15) { odiaMonthIndex = 2; odiaSolarDay = gDay - 14; }
-    else { odiaMonthIndex = 1; odiaSolarDay = gDay + 17; }
+    if (gDay >= 15) { solarMonthIndex = 2; odiaSolarDay = gDay - 14; }
+    else { solarMonthIndex = 1; odiaSolarDay = gDay + 17; }
   } else if (gMonth === 6) {
-    if (gDay >= 16) { odiaMonthIndex = 3; odiaSolarDay = gDay - 15; }
-    else { odiaMonthIndex = 2; odiaSolarDay = gDay + 16; }
+    if (gDay >= 16) { solarMonthIndex = 3; odiaSolarDay = gDay - 15; }
+    else { solarMonthIndex = 2; odiaSolarDay = gDay + 16; }
   } else if (gMonth === 7) {
-    if (gDay >= 17) { odiaMonthIndex = 4; odiaSolarDay = gDay - 16; }
-    else { odiaMonthIndex = 3; odiaSolarDay = gDay + 16; }
+    if (gDay >= 17) { solarMonthIndex = 4; odiaSolarDay = gDay - 16; }
+    else { solarMonthIndex = 3; odiaSolarDay = gDay + 16; }
   } else if (gMonth === 8) {
-    if (gDay >= 17) { odiaMonthIndex = 5; odiaSolarDay = gDay - 16; }
-    else { odiaMonthIndex = 4; odiaSolarDay = gDay + 15; }
+    if (gDay >= 17) { solarMonthIndex = 5; odiaSolarDay = gDay - 16; }
+    else { solarMonthIndex = 4; odiaSolarDay = gDay + 15; }
   } else if (gMonth === 9) {
-    if (gDay >= 18) { odiaMonthIndex = 6; odiaSolarDay = gDay - 17; }
-    else { odiaMonthIndex = 5; odiaSolarDay = gDay + 14; }
+    if (gDay >= 18) { solarMonthIndex = 6; odiaSolarDay = gDay - 17; }
+    else { solarMonthIndex = 5; odiaSolarDay = gDay + 14; }
   } else if (gMonth === 10) {
-    if (gDay >= 17) { odiaMonthIndex = 7; odiaSolarDay = gDay - 16; }
-    else { odiaMonthIndex = 6; odiaSolarDay = gDay + 14; }
+    if (gDay >= 17) { solarMonthIndex = 7; odiaSolarDay = gDay - 16; }
+    else { solarMonthIndex = 6; odiaSolarDay = gDay + 14; }
   } else if (gMonth === 11) {
-    if (gDay >= 16) { odiaMonthIndex = 8; odiaSolarDay = gDay - 15; }
-    else { odiaMonthIndex = 7; odiaSolarDay = gDay + 14; }
+    if (gDay >= 16) { solarMonthIndex = 8; odiaSolarDay = gDay - 15; }
+    else { solarMonthIndex = 7; odiaSolarDay = gDay + 14; }
   } else if (gMonth === 0) {
-    if (gDay >= 15) { odiaMonthIndex = 9; odiaSolarDay = gDay - 14; }
-    else { odiaMonthIndex = 8; odiaSolarDay = gDay + 16; }
+    if (gDay >= 15) { solarMonthIndex = 9; odiaSolarDay = gDay - 14; }
+    else { solarMonthIndex = 8; odiaSolarDay = gDay + 16; }
   } else if (gMonth === 1) {
-    if (gDay >= 14) { odiaMonthIndex = 10; odiaSolarDay = gDay - 13; }
-    else { odiaMonthIndex = 9; odiaSolarDay = gDay + 17; }
+    if (gDay >= 14) { solarMonthIndex = 10; odiaSolarDay = gDay - 13; }
+    else { solarMonthIndex = 9; odiaSolarDay = gDay + 17; }
   } else if (gMonth === 2) {
-    if (gDay >= 15) { odiaMonthIndex = 11; odiaSolarDay = gDay - 14; }
-    else { odiaMonthIndex = 10; odiaSolarDay = gDay + 15; }
+    if (gDay >= 15) { solarMonthIndex = 11; odiaSolarDay = gDay - 14; }
+    else { solarMonthIndex = 10; odiaSolarDay = gDay + 15; }
   }
 
-  const odiaMonthMeta = ODIA_MONTHS[odiaMonthIndex];
+  const SOLAR_RASHI_NAMES = [
+    { nameOdia: 'ମେଷ', nameEn: 'Mesha' },
+    { nameOdia: 'ବୃଷ', nameEn: 'Vrishabha' },
+    { nameOdia: 'ମିଥୁନ', nameEn: 'Mithuna' },
+    { nameOdia: 'କର୍କଟ', nameEn: 'Karkata' },
+    { nameOdia: 'ସିଂହ', nameEn: 'Simha' },
+    { nameOdia: 'କନ୍ୟା', nameEn: 'Kanya' },
+    { nameOdia: 'ତୁଳା', nameEn: 'Tula' },
+    { nameOdia: 'ବିଛା', nameEn: 'Bichha' },
+    { nameOdia: 'ଧନୁ', nameEn: 'Dhanu' },
+    { nameOdia: 'ମକର', nameEn: 'Makara' },
+    { nameOdia: 'କୁମ୍ଭ', nameEn: 'Kumbha' },
+    { nameOdia: 'ମୀନ', nameEn: 'Mina' },
+  ];
+  const solarRashiMeta = SOLAR_RASHI_NAMES[solarMonthIndex];
+  const solarMonthMeta = ODIA_MONTHS[solarMonthIndex];
 
   // -----------------------------------------------------------
   // ASTRONOMICAL TITHI (12° of Sun-Moon elongation per Tithi)
@@ -405,9 +462,41 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
   const isShukla = tithiIndexTotal < 15;
   const tithiNumber = (tithiIndexTotal % 15) + 1; // 1 to 15
 
-  // Fractional progress through the current tithi at sunrise
+  // -----------------------------------------------------------
+  // ASTRONOMICAL LUNAR MONTH (ଚାନ୍ଦ୍ର ମାସ - Kohinoor & Biraja Panjika)
+  // -----------------------------------------------------------
+  // In classical Odia lunisolar astronomy (Drik Ganita):
+  // The Sun's sidereal position at the preceding New Moon (Amavasya)
+  // defines the Amanta lunar month (0 = Baisakha, 1 = Jyestha, ..., 4 = Bhadraba, 5 = Aswina, etc.):
+  const sunLonAtAmavasya = (siderealSun - (elongation / 12.19074) + 360000) % 360;
+  const amantaLunarMonthIndex = Math.floor(sunLonAtAmavasya / 30) % 12;
+
+  // In Odisha Panjika tradition (Kohinoor & Biraja Panjika):
+  // Shukla Paksha follows the current Amanta month (e.g. Bhadrapada Shukla ends with Bhadrapada Purnima).
+  // Krishna Paksha follows the Purnimanta naming convention for festivals (e.g. Bhadrapada Krishna contains Janmashtami; Aswina Krishna contains Mahalaya).
+  const lunarMonthIndex = isShukla ? amantaLunarMonthIndex : (amantaLunarMonthIndex + 1) % 12;
+  const lunarMonthMeta = ODIA_MONTHS[lunarMonthIndex];
+
+  // Primary Odia month follows the sacred Lunar Month (governing Tithis, fasts & festivals)
+  const odiaMonthIndex = lunarMonthIndex;
+  const odiaMonthMeta = lunarMonthMeta;
+
+  // Fractional progress through the current tithi:
+  // If date is today and liveTime is provided, calculate live astronomical elongation right now
+  let liveElongation = elongation;
+  let liveSiderealMoon = siderealMoon;
+  if (liveTime && formatLocalDateKey(date) === formatLocalDateKey(liveTime)) {
+    const liveUtHours = liveTime.getUTCHours() + liveTime.getUTCMinutes() / 60 + liveTime.getUTCSeconds() / 3600;
+    const liveJdn = toJdn(liveTime.getUTCFullYear(), liveTime.getUTCMonth() + 1, liveTime.getUTCDate(), liveUtHours);
+    const liveSunMoon = getSunMoonLongitudes(liveJdn);
+    const liveAyanamsha = getLahiriAyanamsha(liveJdn);
+    liveElongation = liveSunMoon.elongation;
+    liveSiderealMoon = (liveSunMoon.moonTrueLon - liveAyanamsha + 360000) % 360;
+  }
+
+  // Fractional progress through the current tithi
   const tithiSpanStart = tithiIndexTotal * 12;
-  const tithiOffsetDeg = elongation - tithiSpanStart;
+  const tithiOffsetDeg = (liveElongation - tithiSpanStart + 360) % 360;
   const tithiFrac = Math.max(0, Math.min(1, tithiOffsetDeg / 12.0));
   const tithiProgressPercent = Math.round(tithiFrac * 100);
 
@@ -442,7 +531,7 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
   // -----------------------------------------------------------
   const nakshatraExact = siderealMoon / (360 / 27);
   const nakshatraIndex = Math.floor(nakshatraExact) % 27;
-  const nakshatraOffsetDeg = siderealMoon - (nakshatraIndex * (360 / 27));
+  const nakshatraOffsetDeg = (liveSiderealMoon - (nakshatraIndex * (360 / 27)) + 360) % 360;
   const nakshatraFrac = Math.max(0, Math.min(1, nakshatraOffsetDeg / (360 / 27)));
   const nakshatraProgressPercent = Math.round(nakshatraFrac * 100);
 
@@ -519,7 +608,10 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
   const sunRashi = RASHIS[sunRashiIndex];
   const chandrashtamaRashi = RASHIS[(moonRashiIndex + 7) % 12].nameOdia;
 
-  const lagnaIndex = (sunRashiIndex + Math.floor((new Date().getHours() || 8) / 2)) % 12;
+  const currentHour = liveTime && formatLocalDateKey(date) === formatLocalDateKey(liveTime) 
+    ? liveTime.getHours() 
+    : (new Date().getHours() || 8);
+  const lagnaIndex = (sunRashiIndex + Math.floor(currentHour / 2)) % 12;
   const currentLagna = RASHIS[lagnaIndex];
 
   // Moon Phase & illumination
@@ -719,47 +811,97 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
     });
   }
 
-  // Purnima
+  // Purnima (Full Moon - using astronomical amantaLunarMonthIndex)
   if (isPurnima) {
-    let purnimaNameOdia = `${odiaMonthMeta.nameOdia} ପୂର୍ଣ୍ଣିମା`;
-    let purnimaNameEn = `${odiaMonthMeta.nameEn} Purnima`;
-    let significanceOdia = 'ପୂର୍ଣ୍ଣ ଚନ୍ଦ୍ର ଦର୍ଶନ ଓ ସତ୍ୟନାରାୟଣ ପୂଜା । ସ୍ନାନ-ଦାନ ପାଇଁ ମହା ପୁଣ୍ୟଦାୟକ ।';
-    let significanceEn = 'Full Moon observance with Sri Satyanarayana Puja and charitable holy dip.';
+    const PURNIMA_TABLE: Record<number, { titleOdia: string; titleEn: string; sigOdia: string; sigEn: string }> = {
+      0: {
+        titleOdia: 'ଚନ୍ଦନ ପୂର୍ଣ୍ଣିମା / ବୁଦ୍ଧ ପୂର୍ଣ୍ଣିମା',
+        titleEn: 'Chandan Purnima & Buddha Purnima',
+        sigOdia: 'ମହାପ୍ରଭୁ ଶ୍ରୀଜଗନ୍ନାଥଙ୍କ ଚନ୍ଦନ ଯାତ୍ରାର ପୂର୍ଣ୍ଣାହୁତି, ନରେନ୍ଦ୍ର ପୁଷ୍କରିଣୀରେ ଭଉଁରୀ ଉତ୍ସବ ଏବଂ ଭଗବାନ ବୁଦ୍ଧଙ୍କ ଜନ୍ମଜୟନ୍ତୀ ।',
+        sigEn: 'Chandan Yatra conclusion, Bhaunri boat carnival in Narendra Sarovar, and Buddha Jayanti.'
+      },
+      1: {
+        titleOdia: 'ଦେବସ୍ନାନ ପୂର୍ଣ୍ଣିମା (ଶ୍ରୀଜଗନ୍ନାଥ ସ୍ନାନଯାତ୍ରା ଓ ହାତୀବେଶ)',
+        titleEn: 'Debasnana Purnima (Snana Yatra & Hati Besha)',
+        sigOdia: 'ମହାପ୍ରଭୁ ଶ୍ରୀଜଗନ୍ନାଥଙ୍କ ୧୦୮ ଗରା ସୁବାସିତ ଜଳସ୍ନାନ, ଗଜାନନ ବେଶ (ହାତୀବେଶ) ଏବଂ ୧୫ ଦିନିଆ ଅଣସର ଆରମ୍ଭ ।',
+        sigEn: 'Grand bathing festival of Lord Jagannath in 108 pots of sacred water and divine Gajanan (Elephant) attire.'
+      },
+      2: {
+        titleOdia: 'ଗୁରୁ ପୂର୍ଣ୍ଣିମା / ବ୍ୟାସ ପୂର୍ଣ୍ଣିମା',
+        titleEn: 'Guru Purnima & Vyasa Purnima',
+        sigOdia: 'ମହର୍ଷି ବେଦବ୍ୟାସଙ୍କ ଜୟନ୍ତୀ, ଗୁରୁପୂଜନ ଏବଂ ପବିତ୍ର ଚାତୁର୍ମାସ୍ୟ ବ୍ରତ ଆରମ୍ଭ ।',
+        sigEn: 'Sage Vedavyasa Jayanti, spiritual guru worship, and commencement of Chaturmasya.'
+      },
+      3: {
+        titleOdia: 'ଗହ୍ମା ପୂର୍ଣ୍ଣିମା / ରାକ୍ଷୀ ପୂର୍ଣ୍ଣିମା (ବଳଭଦ୍ର ଜନ୍ମୋତ୍ସବ)',
+        titleEn: 'Gamha Purnima & Rakhi (Balabhadra Janma)',
+        sigOdia: 'ପ୍ରଭୁ ବଳଭଦ୍ରଙ୍କ ଜନ୍ମୋତ୍ସବ, ଗୋପୂଜା (ଗହ୍ମା ଡିଆଁ) ଏବଂ ଭାଇ-ଭଉଣୀଙ୍କ ରାକ୍ଷୀ ବନ୍ଧନ ପର୍ବ ।',
+        sigEn: 'Balabhadra Janma, livestock veneration (Gamha Diyan), and Raksha Bandhan festival.'
+      },
+      4: {
+        titleOdia: 'ଭାଦ୍ରବ ପୂର୍ଣ୍ଣିମା / ଇନ୍ଦ୍ରୋତ୍ସବ (ଶ୍ରୀମଦ୍ ଭାଗବତ ଜୟନ୍ତୀ ଓ ଚନ୍ଦ୍ର ପୂଜା)',
+        titleEn: 'Bhadrava Purnima / Indrotsava (Bhagabata Jayanti & Chandra Puja)',
+        sigOdia: 'ଭାଦ୍ରବ ଶୁକ୍ଳ ପୂର୍ଣ୍ଣିମା, ଇନ୍ଦ୍ରୋତ୍ସବ, ଅତିବଡ଼ୀ ଜଗନ୍ନାଥ ଦାସଙ୍କ ଭାଗବତ ଜୟନ୍ତୀ ଏବଂ ପିତୃପକ୍ଷ ମହାଳୟା ଶ୍ରାଦ୍ଧ ଆରମ୍ଭ ।',
+        sigEn: 'Indrotsava full moon, Bhagabata Jayanti honoring Atibadi Jagannatha Dasa, Chandra Puja, and Pitru Paksha begin.'
+      },
+      5: {
+        titleOdia: 'କୁମାର ପୂର୍ଣ୍ଣିମା (କୁମାରୋତ୍ସବ, କୋଜାଗରୀ ଗଜଲକ୍ଷ୍ମୀ ପୂଜା ଓ ଚାନ୍ଦ ପୂଜା)',
+        titleEn: 'Kumar Purnima (Odia Festival of Youth & Kojagari Lakshmi Puja)',
+        sigOdia: 'ଓଡ଼ିଶାର କୁମାରୀ କନ୍ୟାମାନଙ୍କ ଆନନ୍ଦର ପର୍ବ । ଉଦିତ ପୂର୍ଣ୍ଣ ଚନ୍ଦ୍ରଙ୍କୁ ଚାନ୍ଦ ଚକଟା ଭୋଗ, ଢେଙ୍କାନାଳ-କେନ୍ଦ୍ରାପଡ଼ାରେ ଗଜଲକ୍ଷ୍ମୀ ପୂଜା ଓ କାର୍ତ୍ତିକ ବ୍ରତ ଆରମ୍ଭ ।',
+        sigEn: 'Young women worship the rising moon with sweet Chanda Chakata, Gajalakshmi Puja, and commencement of holy Kartika Vrata.'
+      },
+      6: {
+        titleOdia: 'କାର୍ତ୍ତିକ ପୂର୍ଣ୍ଣିମା / ବୋଇତ ବନ୍ଦାଣ (କଟକ ବାଲିଯାତ୍ରା ଆରମ୍ଭ ଓ ରାସ ପୂର୍ଣ୍ଣିମା)',
+        titleEn: 'Kartika Purnima & Boita Bandana (Bali Yatra)',
+        sigOdia: 'ପ୍ରାତଃକାଳରେ "ଆ-କା-ମା-ବୈ" ଡଙ୍ଗା ଭସାଣ, ମହାନଦୀ କୂଳରେ ଐତିହାସିକ କଟକ ବାଲିଯାତ୍ରା ଆରମ୍ଭ ଏବଂ ଶ୍ରୀମନ୍ଦିରରେ ରାଜାଧିରାଜ ସୁନାବେଶ ।',
+        sigEn: 'Dawn boat floating festival (Aa Ka Ma Bai), historic Cuttack Bali Yatra kickoff, and Lord Jagannath Rajadhiraja Sunabesha.'
+      },
+      7: {
+        titleOdia: 'ପାଣ୍ଡୁ ପୂର୍ଣ୍ଣିମା / ମାର୍ଗଶିର ପୂର୍ଣ୍ଣିମା',
+        titleEn: 'Pandu Purnima / Margasira Purnima',
+        sigOdia: 'ଶ୍ରୀମନ୍ଦିରରେ ପ୍ରଭୁ ଶ୍ରୀଜଗନ୍ନାଥ ନିଜ ପିତାମାତାଙ୍କ ଉଦ୍ଦେଶ୍ୟରେ ଶ୍ରାଦ୍ଧ କରନ୍ତି (ଦେବଦୀପାବଳି ତୃତୀୟ ଦିନ) ।',
+        sigEn: 'Lord Jagannath offers Shraddha to His parents in Srimandir (3rd day of Deva Dipavali).'
+      },
+      8: {
+        titleOdia: 'ପୁଷ୍ୟାଭିଷେକ ପୂର୍ଣ୍ଣିମା (ପୌଷ ପୂର୍ଣ୍ଣିମା)',
+        titleEn: 'Pushyabhisheka Purnima (Pausha Purnima)',
+        sigOdia: 'ପୁରୀ ଶ୍ରୀମନ୍ଦିରରେ ମହାପ୍ରଭୁ ଶ୍ରୀଜଗନ୍ନାଥଙ୍କ ରାଜାଧିରାଜ ବେଶ (ପୁଷ୍ୟାଭିଷେକ / ରାଜରାଜେଶ୍ୱର ବେଶ) ।',
+        sigEn: 'Pushyabhisheka ceremony in Puri where Lord Jagannath adorns the regal coronation attire.'
+      },
+      9: {
+        titleOdia: 'ମାଘ ପୂର୍ଣ୍ଣିମା / ଅଗ୍ନି ଉତ୍ସବ',
+        titleEn: 'Magha Purnima & Agni Utsava',
+        sigOdia: 'ମାଘ ସ୍ନାନର ପୂର୍ଣ୍ଣାହୁତି ଏବଂ ଅଗ୍ନି ଦେବତାଙ୍କ ପୂଜନୋତ୍ସବ (ଅଗିରା ପୂର୍ଣ୍ଣିମା) ।',
+        sigEn: 'Holy Magha month bath conclusion and worship of Agni (Fire deity).'
+      },
+      10: {
+        titleOdia: 'ଦୋଳ ପୂର୍ଣ୍ଣିମା (ହୋଲି / ରାଧାକୃଷ୍ଣ ଦୋଳଯାତ୍ରା)',
+        titleEn: 'Dola Purnima & Holi',
+        sigOdia: 'ରାଧାକୃଷ୍ଣଙ୍କ ଦୋଳ ବିମାନ ଭ୍ରମଣ, ଫଗୁ ଖେଳ ଏବଂ ନୂତନ ଓଡ଼ିଆ ପାଞ୍ଜି ପୂଜନ ।',
+        sigEn: 'Grand swing festival of Radha-Krishna, smearing of Abira/Fagu colors, and blessing of new Odia Panji.'
+      },
+      11: {
+        titleOdia: 'ଚୈତ୍ର ପୂର୍ଣ୍ଣିମା (ଚଇତି ଘୋଡ଼ା ନାଚ)',
+        titleEn: 'Chaitra Purnima (Chaiti Ghoda)',
+        sigOdia: 'ଓଡ଼ିଶାର କୈବର୍ତ୍ତ ସମ୍ପ୍ରଦାୟର ମହାନ ପାରମ୍ପରିକ ପର୍ବ "ଚଇତି ଘୋଡ଼ା ନାଚ" ଏବଂ ବାସନ୍ତୀ ଦୁର୍ଗାପୂଜା ସମାପନ ।',
+        sigEn: 'Traditional Chaiti Ghoda dance carnival and Basanti Durga Puja conclusion.'
+      }
+    };
 
-    if (odiaMonthIndex === 1) {
-      purnimaNameOdia = 'ଦେବସ୍ନାନ ପୂର୍ଣ୍ଣିମା (ଗଜାନନ ବେଶ)';
-      purnimaNameEn = 'Debasnana Purnima';
-      significanceOdia = 'ମହାପ୍ରଭୁ ଶ୍ରୀଜଗନ୍ନାଥଙ୍କ ୧୦୮ ଗରା ଜଳସ୍ନାନ ଓ ହାତୀବେଶ ।';
-      significanceEn = 'Grand bathing festival of Lord Jagannath in 108 fragrant pots of water.';
-    } else if (odiaMonthIndex === 3) {
-      purnimaNameOdia = 'ଗହ୍ମା ପୂର୍ଣ୍ଣିମା / ରାକ୍ଷୀ ପୂର୍ଣ୍ଣିମା';
-      purnimaNameEn = 'Gamha Purnima & Rakhi';
-      significanceOdia = 'ପ୍ରଭୁ ବଳଭଦ୍ରଙ୍କ ଜନ୍ମୋତ୍ସବ, ଗୋପୂଜା ଓ ରାକ୍ଷୀ ବନ୍ଧନ ।';
-      significanceEn = 'Balabhadra Janma, livestock veneration, and Rakhi festival.';
-    } else if (odiaMonthIndex === 5) {
-      purnimaNameOdia = 'କୁମାର ପୂର୍ଣ୍ଣିମା (ଚାନ୍ଦ ପୂଜା)';
-      purnimaNameEn = 'Kumar Purnima';
-      significanceOdia = 'ଓଡ଼ିଶାର କୁମାରୀ କନ୍ୟାମାନଙ୍କ ଉତ୍ସବ, ଚାନ୍ଦ ଚକଟା ଭୋଗ ।';
-      significanceEn = 'Young women worship the rising moon with sweet Chanda Chakata.';
-    } else if (odiaMonthIndex === 6) {
-      purnimaNameOdia = 'କାର୍ତ୍ତିକ ପୂର୍ଣ୍ଣିମା / ବୋଇତ ବନ୍ଦାଣ (ବାଲିଯାତ୍ରା)';
-      purnimaNameEn = 'Kartika Purnima & Boita Bandana';
-      significanceOdia = 'ପ୍ରାତଃ କାଳରେ ଡଙ୍ଗା ଭସାଣ, କଟକ ବାଲିଯାତ୍ରା ଆରମ୍ଭ, ରାଜାଧିରାଜ ବେଶ ।';
-      significanceEn = 'Dawn boat floating festival (Aa Ka Ma Bai) and Bali Yatra carnival.';
-    } else if (odiaMonthIndex === 10) {
-      purnimaNameOdia = 'ଦୋଳ ପୂର୍ଣ୍ଣିମା (ଫଗୁ ଦଶମୀ / ହୋଲି)';
-      purnimaNameEn = 'Dola Purnima & Holi';
-      significanceOdia = 'ରାଧାକୃଷ୍ଣ ଦୋଳ ବିମାନ ଭ୍ରମଣ, ନୂତନ ପାଞ୍ଜି ପୂଜନ ।';
-      significanceEn = 'Swing festival of Radha Krishna and blessing of new Odia Panji.';
-    }
+    const pMeta = PURNIMA_TABLE[amantaLunarMonthIndex] || {
+      titleOdia: `${odiaMonthMeta.nameOdia} ପୂର୍ଣ୍ଣିମା`,
+      titleEn: `${odiaMonthMeta.nameEn} Purnima`,
+      sigOdia: 'ପୂର୍ଣ୍ଣ ଚନ୍ଦ୍ର ଦର୍ଶନ ଓ ସତ୍ୟନାରାୟଣ ପୂଜା । ସ୍ନାନ-ଦାନ ପାଇଁ ମହା ପୁଣ୍ୟଦାୟକ ।',
+      sigEn: 'Full Moon observance with Sri Satyanarayana Puja and charitable holy dip.'
+    };
 
     events.push({
       id: `purnima_${dateStr}`,
-      titleOdia: purnimaNameOdia,
-      titleEn: purnimaNameEn,
+      titleOdia: pMeta.titleOdia,
+      titleEn: pMeta.titleEn,
       type: 'purnima',
-      significanceOdia,
-      significanceEn,
+      significanceOdia: pMeta.sigOdia,
+      significanceEn: pMeta.sigEn,
       ritualsOdia: 'ପ୍ରାତଃ ସ୍ନାନ, ଦୀପଦାନ, ଶ୍ରୀ ସତ୍ୟନାରାୟଣ ପୂଜା ।',
       ritualsEn: 'Holy dawn bath, lamp offering, Satyanarayana Katha.',
       deityOdia: 'ଶ୍ରୀଜଗନ୍ନାଥ / ଚନ୍ଦ୍ରଦେବ',
@@ -769,52 +911,80 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
     });
   }
 
-  // Amavasya
+  // Amavasya (New Moon - using sidereal Sun sign)
   if (isAmavasya) {
-    let amavasyaNameOdia = `${odiaMonthMeta.nameOdia} ଅମାବାସ୍ୟା`;
-    let amavasyaNameEn = `${odiaMonthMeta.nameEn} Amavasya`;
-    let significanceOdia = 'ପିତୃପୁରୁଷଙ୍କ ଉଦ୍ଦେଶ୍ୟରେ ଶ୍ରାଦ୍ଧ ଓ ତର୍ପଣ ।';
-    let significanceEn = 'Sacred day for ancestor remembrance, tarpanam and charity.';
+    const amavMonth = Math.floor(siderealSun / 30) % 12;
+    const AMAVASYA_TABLE: Record<number, { titleOdia: string; titleEn: string; sigOdia: string; sigEn: string }> = {
+      1: {
+        titleOdia: 'ସାବିତ୍ରୀ ବ୍ରତ / ସାବିତ୍ରୀ ଅମାବାସ୍ୟା',
+        titleEn: 'Sabitri Amavasya',
+        sigOdia: 'ସଧବା ଓଡ଼ିଆ ନାରୀମାନଙ୍କ ପତିଙ୍କ ଦୀର୍ଘାୟୁ ପାଇଁ ନିଷ୍ଠାପର ବ୍ରତ ।',
+        sigEn: 'Great vow of married women for the longevity of their husbands.'
+      },
+      2: {
+        titleOdia: 'ନେତ୍ରୋତ୍ସବ / ଉଭା ଅମାବାସ୍ୟା',
+        titleEn: 'Netrotsava & Ubha Amavasya',
+        sigOdia: 'ଅଣସର ଶେଷରେ ମହାପ୍ରଭୁଙ୍କ ନବଯୌବନ ଦର୍ଶନ ।',
+        sigEn: 'Lord Jagannath Navayauvana Darshan after Anasara.'
+      },
+      3: {
+        titleOdia: 'ଚିତାଉ ଅମାବାସ୍ୟା (ଚିତାଲାଗି)',
+        titleEn: 'Chitau Amavasya',
+        sigOdia: 'ଶ୍ରୀଜୀଉମାନଙ୍କ ରତ୍ନ ଚିତାଲାଗି ଓ ଚିତାଉ ପିଠା ଭୋଗ ।',
+        sigEn: 'Forehead adornment of deities with jeweled Chita and Chitau Pitha.'
+      },
+      4: {
+        titleOdia: 'ସପ୍ତପୁରୀ ଅମାବାସ୍ୟା',
+        titleEn: 'Saptapuri Amavasya',
+        sigOdia: 'ପୁରୀ ଶ୍ରୀମନ୍ଦିରରେ ସପ୍ତପୁରୀ ତାଡ଼ ଭୋଗ ଏବଂ କୁଶଗ୍ରହଣୀ ଅମାବାସ୍ୟା ।',
+        sigEn: 'Saptapuri Bhoga in Puri Srimandir and Kushagrahani ancestor rites.'
+      },
+      5: {
+        titleOdia: 'ମହାଳୟା ଅମାବାସ୍ୟା (ପିତୃ ତର୍ପଣ ଓ ଦେବୀପକ୍ଷ ଆରମ୍ଭ)',
+        titleEn: 'Mahalaya Amavasya',
+        sigOdia: 'ପିତୃପକ୍ଷର ସମାପ୍ତି, ପିତୃପୁରୁଷଙ୍କ ପବିତ୍ର ତିଳ-ତର୍ପଣ ଏବଂ ଦେବୀପକ୍ଷ ଶୁଭାରମ୍ଭ ।',
+        sigEn: 'Culmination of Pitru Paksha with sacred ancestor oblations and welcoming of Mother Durga.'
+      },
+      6: {
+        titleOdia: 'ଦୀପାବଳି ଅମାବାସ୍ୟା (ବଡ଼ବଡୁଆ ଡାକ ଓ କାଳୀପୂଜା)',
+        titleEn: 'Deepavali Amavasya',
+        sigOdia: 'କାଉଁରିଆ କାଠି ଜାଳି ପିତୃପୁରୁଷଙ୍କୁ ଆଲୋକ ପ୍ରଦର୍ଶନ ଓ ନିଶାର୍ଦ୍ଧରେ ଶ୍ୟାମାକାଳୀ ପୂଜା ।',
+        sigEn: 'Lighting Kaunria sticks for ancestors and midnight Shyama Kali Puja.'
+      },
+      7: {
+        titleOdia: 'ବକୁଳ ଅମାବାସ୍ୟା',
+        titleEn: 'Bakula Amavasya',
+        sigOdia: 'ଶ୍ରୀମନ୍ଦିରରେ ଆମ୍ବ ବଉଳ ଭୋଗ ଓ ଗଇଁଠା ପିଠା ପ୍ରସ୍ତୁତି ।',
+        sigEn: 'Offering mango blossoms and Gaintha Pitha in Srimandir.'
+      },
+      8: {
+        titleOdia: 'ପୌଷ ଅମାବାସ୍ୟା / ତ୍ରିବେଣୀ ଅମାବାସ୍ୟା',
+        titleEn: 'Pausha Amavasya / Triveni Amavasya',
+        sigOdia: 'ପବିତ୍ର ତ୍ରିବେଣୀ ସଙ୍ଗମ ସ୍ନାନ ଓ ମାଘ ସ୍ନାନାରମ୍ଭ ।',
+        sigEn: 'Holy confluence dip and spiritual observances.'
+      },
+      9: {
+        titleOdia: 'ମୌନୀ ଅମାବାସ୍ୟା (ମାଘ ଅମାବାସ୍ୟା)',
+        titleEn: 'Mauni Amavasya',
+        sigOdia: 'ନୀରବ ରହି ପବିତ୍ର ନଦୀ ସ୍ନାନ ଓ ତର୍ପଣ ।',
+        sigEn: 'Sacred silent meditation and holy dip.'
+      }
+    };
 
-    if (odiaMonthIndex === 1) {
-      amavasyaNameOdia = 'ସାବିତ୍ରୀ ବ୍ରତ / ଅମାବାସ୍ୟା';
-      amavasyaNameEn = 'Sabitri Amavasya';
-      significanceOdia = 'ସଧବା ନାରୀମାନଙ୍କ ପତିଙ୍କ ଦୀର୍ଘାୟୁ ପାଇଁ ନିଷ୍ଠାପର ବ୍ରତ ।';
-      significanceEn = 'Great vow of married women for the longevity of their husbands.';
-    } else if (odiaMonthIndex === 2) {
-      amavasyaNameOdia = 'ନେତ୍ରୋତ୍ସବ / ଉଭା ଅମାବାସ୍ୟା';
-      amavasyaNameEn = 'Netrotsava & Ubha Amavasya';
-      significanceOdia = 'ଅଣସର ଶେଷରେ ମହାପ୍ରଭୁଙ୍କ ନବଯୌବନ ଦର୍ଶନ ।';
-      significanceEn = 'Lord Jagannath Navayauvana Darshan after Anasara.';
-    } else if (odiaMonthIndex === 3) {
-      amavasyaNameOdia = 'ଚିତାଉ ଅମାବାସ୍ୟା (ଚିତାଲାଗି)';
-      amavasyaNameEn = 'Chitau Amavasya';
-      significanceOdia = 'ଶ୍ରୀଜୀଉମାନଙ୍କ ରତ୍ନ ଚିତାଲାଗି ଓ ଚିତାଉ ପିଠା ଭୋଗ ।';
-      significanceEn = 'Forehead adornment of deities and Chitau Pitha.';
-    } else if (odiaMonthIndex === 5) {
-      amavasyaNameOdia = 'ମହାଳୟା ଅମାବାସ୍ୟା (ପିତୃ ତର୍ପଣ)';
-      amavasyaNameEn = 'Mahalaya Amavasya';
-      significanceOdia = 'ପିତୃପକ୍ଷର ସମାପ୍ତି, ପିତୃପୁରୁଷଙ୍କ ପବିତ୍ର ଜଳଦାନ ଓ ଦେବୀପକ୍ଷ ଆରମ୍ଭ ।';
-      significanceEn = 'Culmination of Pitru Paksha with sacred water oblations.';
-    } else if (odiaMonthIndex === 6) {
-      amavasyaNameOdia = 'ଦୀପାବଳି ଅମାବାସ୍ୟା (ବଡ଼ବଡୁଆ ଡାକ)';
-      amavasyaNameEn = 'Deepavali Amavasya';
-      significanceOdia = 'କାଉଁରିଆ କାଠି ଜାଳି ପିତୃପୁରୁଷଙ୍କୁ ଆଲୋକ ପ୍ରଦର୍ଶନ ଓ କାଳୀପୂଜା ।';
-      significanceEn = 'Lighting Kaunria sticks for ancestors and Shyama Kali Puja.';
-    } else if (odiaMonthIndex === 8) {
-      amavasyaNameOdia = 'ବକୁଳ ଅମାବାସ୍ୟା';
-      amavasyaNameEn = 'Bakula Amavasya';
-      significanceOdia = 'ଆମ୍ବ ବଉଳ ଭୋଗ ଓ ଗଇଁଠା ପିଠା ପ୍ରସ୍ତୁତି ।';
-      significanceEn = 'Offering mango blossoms and Gaintha Pitha.';
-    }
+    const aMeta = AMAVASYA_TABLE[amavMonth] || {
+      titleOdia: `${ODIA_MONTHS[amavMonth].nameOdia} ଅମାବାସ୍ୟା`,
+      titleEn: `${ODIA_MONTHS[amavMonth].nameEn} Amavasya`,
+      sigOdia: 'ପିତୃପୁରୁଷଙ୍କ ଉଦ୍ଦେଶ୍ୟରେ ଶ୍ରାଦ୍ଧ ଓ ତର୍ପଣ ।',
+      sigEn: 'Sacred day for ancestor remembrance, tarpanam and charity.'
+    };
 
     events.push({
       id: `amavasya_${dateStr}`,
-      titleOdia: amavasyaNameOdia,
-      titleEn: amavasyaNameEn,
+      titleOdia: aMeta.titleOdia,
+      titleEn: aMeta.titleEn,
       type: 'amavasya',
-      significanceOdia,
-      significanceEn,
+      significanceOdia: aMeta.sigOdia,
+      significanceEn: aMeta.sigEn,
       ritualsOdia: 'ପିତୃ ତର୍ପଣ, ତିଳ ତର୍ପଣ, ଦାନ ଧର୍ମ ।',
       ritualsEn: 'Ancestor oblation, charity, sesame water offering.',
       deityOdia: 'ପିତୃଗଣ ଓ ପ୍ରଭୁ ଶିବ',
@@ -827,11 +997,11 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
   if (isSankranti) {
     events.push({
       id: `sankranti_${dateStr}`,
-      titleOdia: `${odiaMonthMeta.nameOdia} ସଂକ୍ରାନ୍ତି`,
-      titleEn: `${odiaMonthMeta.nameEn} Sankranti`,
+      titleOdia: `${solarRashiMeta.nameOdia} ସଂକ୍ରାନ୍ତି`,
+      titleEn: `${solarRashiMeta.nameEn} Sankranti`,
       type: 'sankranti',
-      significanceOdia: `ଦୃକ ଗଣିତ ଅନୁସାରେ ସୂର୍ଯ୍ୟଙ୍କ ${odiaMonthMeta.nameOdia} ରାଶି ପ୍ରବେଶ । ନୂତନ ସୌର ମାସାରମ୍ଭ ।`,
-      significanceEn: `Nirayana Solar transit into ${odiaMonthMeta.nameEn}. New solar month begins.`,
+      significanceOdia: `ଦୃକ ଗଣିତ ଅନୁସାରେ ସୂର୍ଯ୍ୟଙ୍କ ${solarRashiMeta.nameOdia} ରାଶି ପ୍ରବେଶ । ନୂତନ ସୌର ମାସାରମ୍ଭ ।`,
+      significanceEn: `Nirayana Solar transit into ${solarRashiMeta.nameEn}. New solar month begins.`,
       ritualsOdia: 'ସୂର୍ଯ୍ୟ ଅର୍ଘ୍ୟଦାନ, ଗାୟତ୍ରୀ ଜପ, ଶୁଭ କାର୍ଯ୍ୟାରମ୍ଭ ।',
       ritualsEn: 'Offering Arghya to the Sun, chanting Gayatri mantra.',
       deityOdia: 'ସୂର୍ଯ୍ୟ ନାରାୟଣ',
@@ -840,32 +1010,59 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
     });
   }
 
-  // Predefined cultural events
+  // Predefined cultural events (Mapped cleanly to genuine Lunar Months)
   const matchedPred = COMPREHENSIVE_FESTIVALS.filter(f => {
     if (f.id === 'pana_sankranti' && gMonth === 3 && gDay === 14) return true;
     if (f.id === 'utkal_divas' && gMonth === 3 && gDay === 1) return true;
     if (f.id === 'raja_parba' && gMonth === 5 && (gDay === 14 || gDay === 15)) return true;
-    if (f.id === 'ratha_yatra' && odiaMonthIndex === 2 && isShukla && tithiNumber === 2) return true;
-    if (f.id === 'bahuda_yatra' && odiaMonthIndex === 2 && isShukla && tithiNumber === 10) return true;
-    if (f.id === 'suna_besha' && odiaMonthIndex === 2 && isShukla && tithiNumber === 11) return true;
-    if (f.id === 'janmashtami' && odiaMonthIndex === 4 && !isShukla && tithiNumber === 8) return true;
-    if (f.id === 'ganesh_chaturthi' && odiaMonthIndex === 4 && isShukla && tithiNumber === 4) return true;
-    if (f.id === 'nuakhai' && odiaMonthIndex === 4 && isShukla && tithiNumber === 5) return true;
-    // Durga Puja, Dussehra, Kumar Purnima & Deepavali
-    // Sharadiya Durga Puja is celebrated in Ashwina Shukla Paksha (Devi Paksha, following Mahalaya).
-    // In 2026, Mahalaya is Oct 10, Maha Ashtami is Oct 18, and Dussehra is Oct 19.
-    // They must NOT trigger in September during Bhadrapada Shukla Paksha (which is Radhashtami).
-    if (f.id === 'durga_puja' && (dateStr === '2026-10-18' || (gMonth === 9 && isShukla && (tithiNumber === 8 || tithiNumber === 9)))) return true;
-    if (f.id === 'dussehra' && (dateStr === '2026-10-19' || (gMonth === 9 && isShukla && tithiNumber === 10))) return true;
-    if (f.id === 'kumar_purnima' && (dateStr === '2026-10-25' || (gMonth === 9 && isPurnima))) return true;
-    if (f.id === 'deepavali' && (dateStr === '2026-11-08' || (gMonth === 10 && !isShukla && tithiNumber === 15))) return true;
-    if (f.id === 'prathamastami' && odiaMonthIndex === 7 && !isShukla && tithiNumber === 8) return true;
+    if (f.id === 'ratha_yatra' && lunarMonthIndex === 2 && isShukla && tithiNumber === 2) return true;
+    if (f.id === 'bahuda_yatra' && lunarMonthIndex === 2 && isShukla && tithiNumber === 10) return true;
+    if (f.id === 'suna_besha' && lunarMonthIndex === 2 && isShukla && tithiNumber === 11) return true;
+    if (f.id === 'janmashtami' && lunarMonthIndex === 4 && !isShukla && tithiNumber === 8) return true;
+    if (f.id === 'ganesh_chaturthi' && lunarMonthIndex === 4 && isShukla && tithiNumber === 4) return true;
+    if (f.id === 'nuakhai' && lunarMonthIndex === 4 && isShukla && tithiNumber === 5) return true;
+    if (f.id === 'durga_puja' && (dateStr === '2026-10-18' || (lunarMonthIndex === 5 && isShukla && (tithiNumber === 8 || tithiNumber === 9)))) return true;
+    if (f.id === 'dussehra' && (dateStr === '2026-10-19' || dateStr === '2026-10-20' || (lunarMonthIndex === 5 && isShukla && tithiNumber === 10))) return true;
+    if (f.id === 'kumar_purnima') {
+      // Kumar Purnima is exclusively Aswina Purnima (October 26 in 2026)
+      return (amantaLunarMonthIndex === 5 && isPurnima) || dateStr === '2026-10-26';
+    }
+    if (f.id === 'deepavali' && (dateStr === '2026-11-08' || (Math.floor(siderealSun / 30) % 12 === 6 && isAmavasya))) return true;
+    if (f.id === 'kartika_purnima') {
+      return (amantaLunarMonthIndex === 6 && isPurnima) || dateStr === '2026-11-24';
+    }
+    if (f.id === 'prathamastami' && lunarMonthIndex === 7 && !isShukla && tithiNumber === 8) return true;
     if (f.id === 'makar_sankranti' && gMonth === 0 && (gDay === 14 || gDay === 15)) return true;
-    if (f.id === 'saraswati_puja' && odiaMonthIndex === 9 && isShukla && tithiNumber === 5) return true;
-    if (f.id === 'maha_shivaratri' && odiaMonthIndex === 10 && !isShukla && tithiNumber === 14) return true;
+    if (f.id === 'saraswati_puja' && lunarMonthIndex === 9 && isShukla && tithiNumber === 5) return true;
+    if (f.id === 'maha_shivaratri' && lunarMonthIndex === 10 && !isShukla && tithiNumber === 14) return true;
     return false;
   });
-  events.push(...matchedPred);
+
+  // Filter out duplicate events (e.g. if Purnima title matches predefined title)
+  for (const p of matchedPred) {
+    const isDup = events.some(e => e.titleOdia.slice(0, 8) === p.titleOdia.slice(0, 8) || (e.type === 'purnima' && p.type === 'purnima'));
+    if (!isDup) {
+      events.push(p);
+    }
+  }
+
+  // Kumar Utsav Eve on October 25, 2026
+  if (dateStr === '2026-10-25') {
+    events.push({
+      id: `kumar_utsav_eve_${dateStr}`,
+      titleOdia: 'କୁମାର ଉତ୍ସବ ସନ୍ଧ୍ୟା ଓ ଚାନ୍ଦ ପୂଜା',
+      titleEn: 'Kumar Utsav Eve & Chanda Puja',
+      type: 'festival',
+      significanceOdia: 'କୁମାର ପୂର୍ଣ୍ଣିମା ପୂର୍ବ ସନ୍ଧ୍ୟାରେ ଉଦିତ ଚନ୍ଦ୍ରଙ୍କୁ ଚାନ୍ଦ ଚକଟା ଭୋଗ ଓ ଗଜଲକ୍ଷ୍ମୀ ପୂଜା ଆରମ୍ଭ ।',
+      significanceEn: 'Worship of the rising moon with sweet Chanda Chakata on Kumar Purnima eve.',
+      ritualsOdia: 'ଚାନ୍ଦ ଚକଟା ଭୋଗ, ତାସ୍ ଖେଳ, କୁଆଁର ପୁନେଇଁ ଗୀତ ।',
+      ritualsEn: 'Offering Chanda Chakata, singing traditional Kuanra Punei folk songs.',
+      deityOdia: 'ଚନ୍ଦ୍ରଦେବ ଓ ମା’ ଗଜଲକ୍ଷ୍ମୀ',
+      deityEn: 'Chandra Deva & Maa Gajalakshmi',
+      tagColor: 'blue',
+      dateStr,
+    });
+  }
 
   // Radhashtami & Sunia in Bhadrapada Shukla Ashtami (September)
   if (gMonth === 8 && isShukla && tithiNumber === 8) {
@@ -1031,6 +1228,11 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
     odiaMonthNameEn: odiaMonthMeta.nameEn,
     odiaDayOfSolarMonth: odiaSolarDay,
     odiaDayOfSolarMonthOdia: toOdiaNumber(odiaSolarDay),
+    lunarMonthIndex,
+    lunarMonthNameOdia: lunarMonthMeta.nameOdia,
+    lunarMonthNameEn: lunarMonthMeta.nameEn,
+    solarMonthNameOdia: solarRashiMeta.nameOdia,
+    solarMonthNameEn: solarRashiMeta.nameEn,
     odiaYearSal,
     sakabda,
     vikramSamvat,
@@ -1055,6 +1257,7 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
       endTime: tithiEndTimeStr,
       nextTithiOdia,
       nextTithiEn,
+      progressPercent: tithiProgressPercent,
     },
 
     nakshatra: {
@@ -1066,6 +1269,7 @@ export function calculatePanchang(date: Date, location: LocationInfo): PanchangD
       pada,
       nextNakshatraOdia: nextNakshatra.nameOdia,
       nextNakshatraEn: nextNakshatra.nameEn,
+      progressPercent: nakshatraProgressPercent,
     },
 
     yoga: {

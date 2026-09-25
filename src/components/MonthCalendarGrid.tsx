@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { PanchangDay, LanguageMode } from '../types';
 import { WEEKDAYS, ODIA_MONTHS, toOdiaNumber } from '../data/odiaConstants';
+import { formatLocalDateKey } from '../utils/panchangEngine';
 
 interface MonthCalendarGridProps {
   currentDate: Date;
@@ -22,6 +23,7 @@ interface MonthCalendarGridProps {
   onSetMonth: (year: number, month: number) => void;
   monthDays: PanchangDay[];
   language: LanguageMode;
+  currentLiveTime?: Date;
 }
 
 // Curated Month Options with Odia transliteration & seasonal Masa context
@@ -58,6 +60,7 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
   onSetMonth,
   monthDays,
   language,
+  currentLiveTime,
 }) => {
   const isOdia = language === 'or';
   const isBoth = language === 'both';
@@ -100,8 +103,8 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
   // Odia Month prominent in this period
   const primaryOdiaMonth = monthDays.length > 15 ? monthDays[14] : monthDays[0];
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const selectedStr = selectedDate.toISOString().split('T')[0];
+  const todayStr = formatLocalDateKey(currentLiveTime || new Date());
+  const selectedStr = formatLocalDateKey(selectedDate);
 
   return (
     <div 
@@ -114,17 +117,23 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
           {/* Odia Month & Year Display */}
           <div className="flex items-baseline gap-2">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight font-odia">
-              {primaryOdiaMonth?.odiaMonthNameOdia} - {toOdiaNumber(primaryOdiaMonth?.odiaYearSal || gYear)}
+              {isOdia 
+                ? `${primaryOdiaMonth?.odiaMonthNameOdia} - ${toOdiaNumber(primaryOdiaMonth?.odiaYearSal || gYear)}` 
+                : `${primaryOdiaMonth?.odiaMonthNameEn} ${primaryOdiaMonth?.odiaYearSal || gYear} (Sal)`}
             </h2>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-300 font-odia">
-              {toOdiaNumber(primaryOdiaMonth?.sakabda || 1948)} ଶକାବ୍ଦ
+              {isOdia 
+                ? `${toOdiaNumber(primaryOdiaMonth?.sakabda || 1948)} ଶକାବ୍ଦ`
+                : `${primaryOdiaMonth?.sakabda || 1948} Sakabda`}
             </span>
           </div>
 
           {/* Gregorian counterpart */}
           <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 font-medium mt-0.5">
             {gregorianMonthNames[gMonth]} {gYear}{' '}
-            <span className="text-neutral-400 dark:text-neutral-500">• {primaryOdiaMonth?.rutuOdia} ଋତୁ ({primaryOdiaMonth?.rutuEn})</span>
+            <span className="text-neutral-400 dark:text-neutral-500">
+              • {isOdia ? `${primaryOdiaMonth?.rutuOdia} ଋତୁ (${primaryOdiaMonth?.rutuEn})` : `Season: ${primaryOdiaMonth?.rutuEn} (${primaryOdiaMonth?.rutuOdia})`}
+            </span>
           </p>
         </div>
 
@@ -216,7 +225,7 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
               title={isOdia ? 'ବର୍ଷ ବାଛନ୍ତୁ' : 'Select Year'}
             >
               <span className="font-odia text-xs sm:text-sm font-bold">
-                {gYear} ({toOdiaNumber(gYear)})
+                {isOdia ? `${gYear} (${toOdiaNumber(gYear)})` : `${gYear}`}
               </span>
               <div className="w-4 h-4 rounded-full bg-[#F3D7B5] dark:bg-[#34271F] text-[#9E353B] dark:text-[#E88880] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${yearDropdownOpen ? 'rotate-180' : ''}`} />
@@ -254,10 +263,10 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
                       >
                         <div>
                           <div className="text-sm font-bold text-neutral-900 dark:text-neutral-100 font-odia leading-snug">
-                            {opt.year} ({toOdiaNumber(opt.year)})
+                            {isOdia ? `${opt.year} (${toOdiaNumber(opt.year)})` : `${opt.year}`}
                           </div>
                           <div className="text-[10px] font-semibold text-[#8B6E5C] dark:text-[#A78A78] font-odia">
-                            {opt.sal} • {opt.sakabda}
+                            {isOdia ? `${opt.sal} • ${opt.sakabda}` : `${opt.year - 593}-${opt.year - 592} Sal • ${opt.year - 78} Sakabda`}
                           </div>
                         </div>
                         {isSelected && <Check className="w-4 h-4 text-[#8E282E] dark:text-[#F39A94] shrink-0" />}
@@ -275,7 +284,7 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
               id="prev-month-btn"
               onClick={() => onNavigateMonth(-1)}
               className="p-1.5 sm:p-2 rounded-xl bg-[#F3D7B5]/70 hover:bg-[#F3D7B5] dark:bg-[#34271F] dark:hover:bg-[#433227] text-[#9E353B] dark:text-[#E88880] transition-colors shadow-2xs cursor-pointer"
-              title="Previous Month"
+              title={isOdia ? 'ପୂର୍ବ ମାସ' : 'Previous Month'}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -283,7 +292,7 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
               id="next-month-btn"
               onClick={() => onNavigateMonth(1)}
               className="p-1.5 sm:p-2 rounded-xl bg-[#F3D7B5]/70 hover:bg-[#F3D7B5] dark:bg-[#34271F] dark:hover:bg-[#433227] text-[#9E353B] dark:text-[#E88880] transition-colors shadow-2xs cursor-pointer"
-              title="Next Month"
+              title={isOdia ? 'ପରବର୍ତ୍ତୀ ମାସ' : 'Next Month'}
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -337,34 +346,36 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
               key={day.dateStr}
               id={`calendar-day-cell-${day.dateStr}`}
               onClick={() => onSelectDate(day)}
-              title={`${day.dateStr}: ${day.tithi.nameOdia}${isGovtHoliday && day.govtHolidayInfo ? ` [${day.govtHolidayInfo.nameOdia}]` : isGovtHoliday ? ' [ଓଡ଼ିଶା ସରକାରୀ ଛୁଟି / Govt Holiday]' : ''} - କ୍ଲିକ୍ କରନ୍ତୁ: ସଂକଳ୍ପ ଓ ବିସ୍ତୃତ ପଞ୍ଚାଙ୍ଗ ଦେଖିବା ପାଇଁ`}
+              title={isOdia 
+                ? `${day.dateStr}: ${day.tithi.nameOdia}${isGovtHoliday && day.govtHolidayInfo ? ` [${day.govtHolidayInfo.nameOdia}]` : isGovtHoliday ? ' [ଓଡ଼ିଶା ସରକାରୀ ଛୁଟି]' : ''} - କ୍ଲିକ୍ କରନ୍ତୁ: ସଂକଳ୍ପ ଓ ବିସ୍ତୃତ ପଞ୍ଚାଙ୍ଗ ଦେଖିବା ପାଇଁ`
+                : `${day.dateStr}: ${day.tithi.nameEn}${isGovtHoliday ? ' [Govt Holiday]' : ''} - Click to view Sankalpa & Panchang details`}
               className={`group relative min-h-[98px] sm:min-h-[116px] p-2 rounded-2xl transition-all duration-150 border flex flex-col justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500 overflow-hidden ${
                 isSelected
                   ? 'bg-amber-600 dark:bg-amber-600 text-white border-amber-600 dark:border-amber-500 shadow-md ring-2 ring-amber-500/40 transform scale-[1.01]'
                   : isToday
                   ? isGovtHoliday
-                    ? 'bg-emerald-200/90 dark:bg-emerald-900/80 border-emerald-500 dark:border-emerald-400 text-neutral-900 dark:text-neutral-100 shadow-xs ring-2 ring-emerald-500/60 border-t-4 border-t-emerald-700 dark:border-t-emerald-300'
+                    ? 'bg-emerald-200/90 dark:bg-emerald-900/80 border-emerald-500 dark:border-emerald-400 text-neutral-900 dark:text-neutral-100 shadow-xs ring-2 ring-emerald-500/60'
                     : 'bg-amber-50/90 dark:bg-neutral-800 border-amber-400 dark:border-amber-500/70 text-neutral-900 dark:text-neutral-100 shadow-2xs ring-1 ring-amber-400/30'
                   : isGovtHoliday
-                  ? 'bg-emerald-100/80 dark:bg-emerald-950/70 hover:bg-emerald-200/80 dark:hover:bg-emerald-900/70 border-emerald-400 dark:border-emerald-600/90 text-neutral-900 dark:text-neutral-100 shadow-xs border-t-4 border-t-emerald-600 dark:border-t-emerald-400'
+                  ? 'bg-emerald-100/80 dark:bg-emerald-950/70 hover:bg-emerald-200/80 dark:hover:bg-emerald-900/70 border-emerald-400 dark:border-emerald-600/90 text-neutral-900 dark:text-neutral-100 shadow-xs'
                   : 'bg-white dark:bg-neutral-900 hover:bg-amber-50/60 dark:hover:bg-neutral-800/90 border-neutral-200/80 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 shadow-2xs'
               }`}
             >
               {/* Top Row: Numerals & Solar Day (Justified across width) */}
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-baseline gap-1">
-                  {/* Primary Odia numeral */}
-                  <span className={`text-base sm:text-xl font-extrabold font-odia leading-none ${
+                  {/* Primary numeral */}
+                  <span className={`text-base sm:text-xl font-extrabold leading-none ${isOdia ? 'font-odia' : 'font-sans'} ${
                     isSelected 
                       ? 'text-white' 
                       : isGovtHoliday
                       ? 'text-emerald-950 dark:text-emerald-200'
                       : 'text-neutral-900 dark:text-neutral-100'
                   }`}>
-                    {day.odiaDayNumber}
+                    {isOdia ? day.odiaDayNumber : day.gregorianDay}
                   </span>
 
-                  {/* Gregorian day number */}
+                  {/* Secondary day number */}
                   <span className={`text-[10px] sm:text-xs font-bold ${
                     isSelected 
                       ? 'text-amber-100' 
@@ -372,20 +383,20 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
                       ? 'text-emerald-800 dark:text-emerald-300'
                       : 'text-neutral-400 dark:text-neutral-500'
                   }`}>
-                    ({day.gregorianDay})
+                    ({isOdia ? day.gregorianDay : day.odiaDayNumber})
                   </span>
                 </div>
 
                 <div className="flex items-center gap-1">
-                  {/* Odia solar day / Month day e.g. ୭ ବୈ */}
-                  <span className={`text-[9px] sm:text-[10px] font-bold font-odia px-1.5 py-0.5 rounded ${
+                  {/* Solar day / Month day */}
+                  <span className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded ${isOdia ? 'font-odia' : 'font-sans'} ${
                     isSelected 
                       ? 'bg-white/20 text-white' 
                       : isGovtHoliday 
                       ? 'bg-emerald-200/90 dark:bg-emerald-900 text-emerald-950 dark:text-emerald-100 border border-emerald-400/80 dark:border-emerald-700' 
                       : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
                   }`}>
-                    {day.odiaDayOfSolarMonthOdia}
+                    {isOdia ? day.odiaDayOfSolarMonthOdia : `Day ${day.odiaDayOfSolarMonth}`}
                   </span>
                 </div>
               </div>
@@ -400,7 +411,7 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
                 <div className={`text-[10px] sm:text-[11px] font-medium font-odia truncate leading-snug ${
                   isSelected ? 'text-amber-100' : 'text-neutral-500 dark:text-neutral-400'
                 }`}>
-                  {day.nakshatra.nameOdia}
+                  {isOdia ? day.nakshatra.nameOdia : day.nakshatra.nameEn}
                 </div>
               </div>
 
@@ -410,10 +421,10 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
                 {isEkadashi && (
                   <span 
                     className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-500 text-white shadow-2xs font-odia shrink-0"
-                    title={`ଏକାଦଶୀ: ${day.tithi.nameOdia}`}
+                    title={isOdia ? `ଏକାଦଶୀ: ${day.tithi.nameOdia}` : `Ekadashi: ${day.tithi.nameEn}`}
                   >
                     <Flame className="w-2.5 h-2.5" />
-                    <span>ଏକାଦଶୀ</span>
+                    <span>{isOdia ? 'ଏକାଦଶୀ' : 'Ekadashi'}</span>
                   </span>
                 )}
 
@@ -421,10 +432,10 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
                 {isSankranti && (
                   <span 
                     className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-orange-600 text-white shadow-2xs font-odia shrink-0"
-                    title="ସଂକ୍ରାନ୍ତି"
+                    title={isOdia ? 'ସଂକ୍ରାନ୍ତି' : 'Sankranti'}
                   >
                     <Sun className="w-2.5 h-2.5" />
-                    <span>ସଂକ୍ରାନ୍ତି</span>
+                    <span>{isOdia ? 'ସଂକ୍ରାନ୍ତି' : 'Sankranti'}</span>
                   </span>
                 )}
 
@@ -432,10 +443,10 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
                 {isPurnima && (
                   <span 
                     className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-yellow-400 text-neutral-900 shadow-2xs font-odia shrink-0"
-                    title="ପୂର୍ଣ୍ଣିମା (Full Moon)"
+                    title={isOdia ? 'ପୂର୍ଣ୍ଣିମା (Full Moon)' : 'Purnima (Full Moon)'}
                   >
                     <span className="text-[9px]">🌕</span>
-                    <span>ପୂର୍ଣ୍ଣିମା</span>
+                    <span>{isOdia ? 'ପୂର୍ଣ୍ଣିମା' : 'Purnima'}</span>
                   </span>
                 )}
 
@@ -443,10 +454,10 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
                 {isAmavasya && (
                   <span 
                     className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-2xs font-odia shrink-0"
-                    title="ଅମାବାସ୍ୟା (New Moon)"
+                    title={isOdia ? 'ଅମାବାସ୍ୟା (New Moon)' : 'Amavasya (New Moon)'}
                   >
                     <span className="text-[9px]">🌑</span>
-                    <span>ଅମାବାସ୍ୟା</span>
+                    <span>{isOdia ? 'ଅମାବାସ୍ୟା' : 'Amavasya'}</span>
                   </span>
                 )}
 
@@ -454,10 +465,10 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
                 {hasFestival && !isPurnima && !isAmavasya && !isEkadashi && !isSankranti && (
                   <span 
                     className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-rose-500 text-white truncate max-w-[90%] font-odia"
-                    title={day.events[0]?.titleOdia}
+                    title={isOdia ? day.events[0]?.titleOdia : day.events[0]?.titleEn}
                   >
                     <Sparkles className="w-2 h-2 shrink-0" />
-                    <span className="truncate font-odia">{day.events[0]?.titleOdia.split(' ')[0]}</span>
+                    <span className="truncate font-odia">{isOdia ? (day.events[0]?.titleOdia.split(' ')[0]) : (day.events[0]?.titleEn.split(' ')[0])}</span>
                   </span>
                 )}
 
@@ -465,9 +476,9 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
                 {hasOshaBrata && !hasFestival && !isEkadashi && !isPurnima && !isAmavasya && (
                   <span 
                     className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-teal-600 text-white font-odia"
-                    title="ଓଷା / ବ୍ରତ"
+                    title={isOdia ? 'ଓଷା / ବ୍ରତ' : 'Osha / Brata'}
                   >
-                    ଓଷା
+                    {isOdia ? 'ଓଷା' : 'Osha'}
                   </span>
                 )}
               </div>
@@ -485,7 +496,7 @@ export const MonthCalendarGrid: React.FC<MonthCalendarGridProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800 text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="w-4 h-4 rounded-md bg-emerald-100/90 dark:bg-emerald-950 border-t-[3px] border-t-emerald-600 dark:border-t-emerald-400 border border-emerald-400 flex items-center justify-center shrink-0 shadow-2xs" />
+            <span className="w-4 h-4 rounded-md bg-emerald-100/90 dark:bg-emerald-950 border border-emerald-400 dark:border-emerald-600 flex items-center justify-center shrink-0 shadow-2xs" />
             <span className="font-odia text-emerald-900 dark:text-emerald-300 font-bold">
               {isOdia ? 'ସରକାରୀ ଛୁଟି (ରବିବାର, ୨ୟ/୪ର୍ଥ ଶନିବାର ଓ ଗେଜେଟ୍ ଛୁଟି)' : 'Govt Holidays (Sundays, 2nd/4th Sat & Gazetted)'}
             </span>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   PanchangDay, 
   LocationInfo, 
@@ -6,7 +6,7 @@ import {
   ThemeMode 
 } from './types';
 import { LOCATIONS } from './data/odiaConstants';
-import { calculatePanchang, getMonthPanchang } from './utils/panchangEngine';
+import { calculatePanchang, getMonthPanchang, formatLocalDateKey } from './utils/panchangEngine';
 
 // Components
 import { Header, SaaSViewMode } from './components/Header';
@@ -27,7 +27,13 @@ import { AnnualCalendarModal } from './components/AnnualCalendarModal';
 import { SearchModal } from './components/SearchModal';
 import { RemindersModal, SavedItem } from './components/RemindersModal';
 import { ShareModal } from './components/ShareModal';
-import { PrintExportModal } from './components/PrintExportModal';
+import { PdfExportModal } from './components/PdfExportModal';
+import { ProfileModal } from './components/ProfileModal';
+import { OfflineInfoModal } from './components/OfflineInfoModal';
+import { NetworkStatusToast } from './components/NetworkStatusToast';
+import { MacWindowWrapper } from './components/MacWindowWrapper';
+import { useOnlineStatus } from './utils/useOnlineStatus';
+import creatorPhoto from './assets/creator.jpg';
 
 export default function App() {
   // Current SaaS View Mode
@@ -76,10 +82,33 @@ export default function App() {
     localStorage.setItem('odia_cal_location', loc.id);
   };
 
-  // 3. Calendar Dates
-  const today = useMemo(() => new Date(), []);
-  const [selectedDate, setSelectedDate] = useState<Date>(today);
-  const [currentViewingDate, setCurrentViewingDate] = useState<Date>(today);
+  // 3. Live Real-time Clock & Dynamic Calendar Dates
+  const [currentLiveTime, setCurrentLiveTime] = useState<Date>(() => new Date());
+  const [isViewingToday, setIsViewingToday] = useState(true);
+  const lastMidnightKeyRef = useRef<string>(formatLocalDateKey(new Date()));
+
+  // 1-second interval to update live clock and detect 12:00:00 midnight rollover
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      setCurrentLiveTime(now);
+
+      // Check if calendar date rolled over past 12 midnight
+      const nowKey = formatLocalDateKey(now);
+      if (nowKey !== lastMidnightKeyRef.current) {
+        lastMidnightKeyRef.current = nowKey;
+        // Midnight crossover: automatically update if viewing today
+        if (isViewingToday) {
+          setSelectedDate(now);
+          setCurrentViewingDate(now);
+        }
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isViewingToday]);
+
+  const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
+  const [currentViewingDate, setCurrentViewingDate] = useState<Date>(() => new Date());
 
   // Month days computation
   const monthDays = useMemo(() => {
@@ -90,10 +119,13 @@ export default function App() {
     );
   }, [currentViewingDate, selectedLocation]);
 
-  // Selected day's Panchang calculation
+  // Selected day's Panchang calculation with live real-time calibration
+  const isSelectedDateToday = formatLocalDateKey(selectedDate) === formatLocalDateKey(currentLiveTime);
+  const liveMinute = isSelectedDateToday ? currentLiveTime.getMinutes() : null;
+
   const selectedDayPanchang = useMemo(() => {
-    return calculatePanchang(selectedDate, selectedLocation);
-  }, [selectedDate, selectedLocation]);
+    return calculatePanchang(selectedDate, selectedLocation, isSelectedDateToday ? currentLiveTime : undefined);
+  }, [selectedDate, selectedLocation, isSelectedDateToday, liveMinute]);
 
   // 4. Saved items (Bookmarks & Reminders)
   const [savedItems, setSavedItems] = useState<SavedItem[]>(() => {
@@ -163,11 +195,13 @@ export default function App() {
     const now = new Date();
     setSelectedDate(now);
     setCurrentViewingDate(now);
+    setIsViewingToday(true);
     setCurrentView('calendar');
   };
 
   const handleSelectCalendarDay = (day: PanchangDay) => {
     setSelectedDate(day.date);
+    setIsViewingToday(formatLocalDateKey(day.date) === formatLocalDateKey(currentLiveTime));
     setIsDayPanchangModalOpen(true);
   };
 
@@ -177,6 +211,7 @@ export default function App() {
       const target = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
       setSelectedDate(target);
       setCurrentViewingDate(target);
+      setIsViewingToday(formatLocalDateKey(target) === formatLocalDateKey(currentLiveTime));
       setCurrentView('calendar');
       setIsDayPanchangModalOpen(true);
     }
@@ -202,11 +237,47 @@ export default function App() {
   const [isAnnualOpen, setIsAnnualOpen] = useState(false);
   const [isRemindersOpen, setIsRemindersOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isPrintOpen, setIsPrintOpen] = useState(false);
+  const [isDownloadPdfOpen, setIsDownloadPdfOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isOfflineInfoOpen, setIsOfflineInfoOpen] = useState(false);
+
+  // Online / Offline connectivity detection
+  const { isOnline, justCameOnline } = useOnlineStatus();
+
+  // PWA Install prompt handling
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleBeforeInstall = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+  }, []);
+
+  const handleInstallPwa = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice?.outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col font-sans selection:bg-orange-500 selection:text-white transition-colors">
-      {/* SaaS Navigation Header */}
+    <MacWindowWrapper
+      language={language}
+      theme={theme}
+      currentLiveTime={currentLiveTime}
+      selectedDateStr={selectedDayPanchang.dateStr}
+      onResetToToday={handleGoToToday}
+    >
+      <div className="w-full flex-1 bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col font-sans selection:bg-orange-500 selection:text-white transition-colors">
+        {/* SaaS Navigation Header */}
       <Header
         currentView={currentView}
         onSetView={setCurrentView}
@@ -218,8 +289,11 @@ export default function App() {
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenAnnual={() => setIsAnnualOpen(true)}
         onOpenReminders={() => setIsRemindersOpen(true)}
-        onOpenPrint={() => setIsPrintOpen(true)}
+        onOpenDownloadPdf={() => setIsDownloadPdfOpen(true)}
         onOpenShare={() => setIsShareOpen(true)}
+        onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenOfflineInfo={() => setIsOfflineInfoOpen(true)}
+        isOnline={isOnline}
         savedCount={savedItems.length}
       />
 
@@ -239,6 +313,7 @@ export default function App() {
                 language={language}
                 sunrise={selectedDayPanchang.timings.sunrise}
                 sunset={selectedDayPanchang.timings.sunset}
+                currentLiveTime={currentLiveTime}
               />
 
               {/* Monthly Calendar Grid with Odia numerals, tithis & badges */}
@@ -250,6 +325,7 @@ export default function App() {
                 onSetMonth={handleSetMonth}
                 monthDays={monthDays}
                 language={language}
+                currentLiveTime={currentLiveTime}
               />
 
               {/* Monthly Festivals & Observances highlights */}
@@ -271,6 +347,7 @@ export default function App() {
                 onShare={() => setIsShareOpen(true)}
                 onViewChoghadiya={() => setCurrentView('choghadiya')}
                 onOpenModal={() => setIsDayPanchangModalOpen(true)}
+                currentLiveTime={currentLiveTime}
               />
             </div>
 
@@ -283,6 +360,7 @@ export default function App() {
             <ChoghadiyaView
               day={selectedDayPanchang}
               language={language}
+              currentLiveTime={currentLiveTime}
             />
           </div>
         )}
@@ -319,8 +397,27 @@ export default function App() {
       </main>
 
       {/* Modern SaaS Footer */}
-      <footer className="w-full border-t border-neutral-200/80 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 py-4 px-6 text-center text-xs text-neutral-500 font-odia">
-        <span>କୋହେନୂର ଓ ବିରଜା ଶୈଳୀ ଦୃକ ଓଡ଼ିଆ ପାଞ୍ଜି • ଶ୍ରୀଜଗନ୍ନାଥ ମହାପ୍ରଭୁଙ୍କ ଶ୍ରୀଚରଣରେ ସମର୍ପିତ 🙏</span>
+      <footer className={`w-full border-t border-neutral-200/80 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 py-4 px-6 text-xs text-neutral-500 ${language === 'or' ? 'font-odia' : 'font-sans'} flex flex-col sm:flex-row items-center justify-between gap-3`}>
+        <span>
+          {language === 'or' 
+            ? 'କୋହେନୂର ଓ ବିରଜା ଶୈଳୀ ଦୃକ ଓଡ଼ିଆ ପାଞ୍ଜି • ଶ୍ରୀଜଗନ୍ନାଥ ମହାପ୍ରଭୁଙ୍କ ଶ୍ରୀଚରଣରେ ସମର୍ପିତ 🙏' 
+            : 'Kohinoor & Biraja Style Drik Odia Panji • Dedicated at the lotus feet of Mahaprabhu Shri Jagannath 🙏'}
+        </span>
+        <button
+          type="button"
+          onClick={() => setIsProfileOpen(true)}
+          className="inline-flex items-center gap-2 text-neutral-600 dark:text-neutral-400 hover:text-orange-600 dark:hover:text-orange-400 font-semibold transition-colors cursor-pointer group"
+          title={language === 'or' ? 'ପ୍ରୋଫାଇଲ୍ ଦେଖନ୍ତୁ' : 'View Profile'}
+        >
+          <img 
+            src={creatorPhoto} 
+            alt="Sri Nandan Kumar Mohapatra" 
+            className="w-5 h-5 rounded-full object-cover ring-1 ring-orange-500/40 group-hover:ring-orange-500 transition-all" 
+          />
+          <span className="underline decoration-dotted underline-offset-4">
+            {language === 'or' ? 'ପରିକଳ୍ପନା ଓ ବିକାଶ: ଶ୍ରୀ ନନ୍ଦନ କୁମାର ମହାପାତ୍ର' : 'Crafted by Sri Nandan Kumar Mohapatra'}
+          </span>
+        </button>
       </footer>
 
       {/* Interactive Modals */}
@@ -382,14 +479,15 @@ export default function App() {
         />
       )}
 
-      {isPrintOpen && (
-        <PrintExportModal
-          isOpen={isPrintOpen}
-          onClose={() => setIsPrintOpen(false)}
+      {isDownloadPdfOpen && (
+        <PdfExportModal
+          isOpen={isDownloadPdfOpen}
+          onClose={() => setIsDownloadPdfOpen(false)}
           day={selectedDayPanchang}
           monthDays={monthDays}
           language={language}
           location={selectedLocation}
+          theme={theme}
         />
       )}
 
@@ -405,6 +503,35 @@ export default function App() {
           isBookmarked={isCurrentBookmarked}
         />
       )}
-    </div>
+
+      {/* Creator Profile Modal (Sri Nandan Kumar Mohapatra) */}
+      {isProfileOpen && (
+        <ProfileModal
+          isOpen={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+          language={language}
+          onSetLanguage={setLanguage}
+        />
+      )}
+
+      {/* Offline Capabilities & Diagnostics Modal */}
+      <OfflineInfoModal
+        isOpen={isOfflineInfoOpen}
+        onClose={() => setIsOfflineInfoOpen(false)}
+        isOnline={isOnline}
+        language={language}
+        canInstallPwa={!!deferredPrompt}
+        onInstallPwa={handleInstallPwa}
+      />
+
+      {/* Floating Connectivity Toast */}
+      <NetworkStatusToast
+        isOnline={isOnline}
+        justCameOnline={justCameOnline}
+        language={language}
+        onOpenDetails={() => setIsOfflineInfoOpen(true)}
+      />
+      </div>
+    </MacWindowWrapper>
   );
 }

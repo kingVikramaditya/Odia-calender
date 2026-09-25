@@ -142,7 +142,9 @@ export const RemindersModal: React.FC<RemindersModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
           {savedItems.length === 0 ? (
             <div className="py-12 text-center text-neutral-400 font-odia text-xs">
-              କୌଣସି ତାରିଖ ସଂରକ୍ଷିତ ହୋଇନାହିଁ । କ୍ୟାଲେଣ୍ଡରର ବୁକମାର୍କ ଚିହ୍ନ ଉପରେ କ୍ଲିକ୍ କରି ତାରିଖ ସଂରକ୍ଷଣ କରନ୍ତୁ ।
+              {isOdia 
+                ? 'କୌଣସି ତାରିଖ ସଂରକ୍ଷିତ ହୋଇନାହିଁ । କ୍ୟାଲେଣ୍ଡରର ବୁକମାର୍କ ଚିହ୍ନ ଉପରେ କ୍ଲିକ୍ କରି ତାରିଖ ସଂରକ୍ଷଣ କରନ୍ତୁ ।'
+                : 'No dates saved yet. Click the bookmark icon on any date in the calendar to save it.'}
             </div>
           ) : (
             savedItems.map((item) => (

@@ -70,7 +70,7 @@ export const RashifalView: React.FC<RashifalViewProps> = ({ language }) => {
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                     isSelected ? 'bg-indigo-200 text-indigo-900 dark:bg-indigo-900 dark:text-indigo-200' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800'
                   }`}>
-                    {rashi.elementOdia}
+                    {isOdia ? rashi.elementOdia : rashi.elementEn}
                   </span>
                 </div>
 
@@ -78,10 +78,10 @@ export const RashifalView: React.FC<RashifalViewProps> = ({ language }) => {
                   <h4 className={`text-sm font-bold ${
                     isSelected ? 'text-indigo-950 dark:text-white' : 'text-neutral-900 dark:text-white'
                   }`}>
-                    {rashi.nameOdia}
+                    {isOdia ? rashi.nameOdia : rashi.nameEn}
                   </h4>
                   <span className="text-[11px] text-neutral-400 font-sans">
-                    {rashi.nameEn}
+                    {isOdia ? rashi.nameEn : rashi.nameOdia}
                   </span>
                 </div>
               </button>
@@ -98,10 +98,15 @@ export const RashifalView: React.FC<RashifalViewProps> = ({ language }) => {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-neutral-900 dark:text-white font-odia">
-                  {selectedRashi.nameOdia} ରାଶି ({selectedRashi.nameEn})
+                  {isOdia ? `${selectedRashi.nameOdia} ରାଶି (${selectedRashi.nameEn})` : `${selectedRashi.nameEn} (${selectedRashi.nameOdia})`}
                 </h3>
                 <p className="text-xs text-neutral-500 font-odia">
-                  ଅଧିପତି ଗ୍ରହ: <span className="font-semibold text-neutral-700 dark:text-neutral-300">{selectedRashi.rulerOdia}</span> • ତତ୍ତ୍ୱ: {selectedRashi.elementOdia}
+                  {isOdia ? 'ଅଧିପତି ଗ୍ରହ: ' : 'Ruling Planet: '}
+                  <span className="font-semibold text-neutral-700 dark:text-neutral-300">
+                    {isOdia ? selectedRashi.rulerOdia : selectedRashi.rulerEn}
+                  </span>
+                  {' '}• {isOdia ? 'ତତ୍ତ୍ୱ: ' : 'Element: '}
+                  <span>{isOdia ? selectedRashi.elementOdia : selectedRashi.elementEn}</span>
                 </p>
               </div>
             </div>
@@ -111,7 +116,9 @@ export const RashifalView: React.FC<RashifalViewProps> = ({ language }) => {
                 <ShieldCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                 <span>{isOdia ? rashiData.sourceOdia : rashiData.sourceEn}</span>
               </span>
-              <span className="text-[10px] text-neutral-400 font-odia">ଶୁଭ ସମୟ: {toOdiaNumber(rashiData.timeSlotOdia)}</span>
+              <span className="text-[10px] text-neutral-400 font-odia">
+                {isOdia ? `ଶୁଭ ସମୟ: ${toOdiaNumber(rashiData.timeSlotOdia)}` : `Auspicious Hours: 08:30 - 10:15 AM`}
+              </span>
             </div>
           </div>
 
@@ -121,28 +128,38 @@ export const RashifalView: React.FC<RashifalViewProps> = ({ language }) => {
               {isOdia ? 'ପ୍ରାମାଣିକ ଜ୍ୟୋତିଷ ଫଳାଦେଶ' : 'Authentic Jyotisha Predictions'}
             </h4>
             <p className="text-base text-neutral-800 dark:text-neutral-200 leading-relaxed font-semibold">
-              {rashiData.predictionOdia}
+              {isOdia ? rashiData.predictionOdia : rashiData.predictionEn}
             </p>
             <p className="text-xs text-neutral-500 leading-relaxed font-sans">
-              {rashiData.predictionEn}
+              {isOdia ? rashiData.predictionEn : rashiData.predictionOdia}
             </p>
           </div>
 
           {/* Detailed domain-specific advice: Career, Family, Mantra */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 font-odia">
             <div className="p-3.5 rounded-2xl bg-amber-50/50 dark:bg-neutral-800/40 border border-amber-200/50 dark:border-neutral-700/60">
-              <div className="text-xs font-bold text-amber-800 dark:text-amber-400 mb-1">କର୍ମ ଓ ବ୍ୟବସାୟ (Career)</div>
-              <div className="text-xs text-neutral-700 dark:text-neutral-300">{rashiData.careerOdia}</div>
+              <div className="text-xs font-bold text-amber-800 dark:text-amber-400 mb-1">
+                {isOdia ? 'କର୍ମ ଓ ବ୍ୟବସାୟ (Career)' : 'Career & Business'}
+              </div>
+              <div className="text-xs text-neutral-700 dark:text-neutral-300">
+                {rashiData.careerOdia}
+              </div>
             </div>
             <div className="p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-neutral-800/40 border border-emerald-200/50 dark:border-neutral-700/60">
-              <div className="text-xs font-bold text-emerald-800 dark:text-emerald-400 mb-1">ପାରିବାରିକ ଓ ସ୍ୱାସ୍ଥ୍ୟ (Family & Health)</div>
-              <div className="text-xs text-neutral-700 dark:text-neutral-300">{rashiData.familyOdia} • {rashiData.healthOdia}</div>
+              <div className="text-xs font-bold text-emerald-800 dark:text-emerald-400 mb-1">
+                {isOdia ? 'ପାରିବାରିକ ଓ ସ୍ୱାସ୍ଥ୍ୟ (Family & Health)' : 'Family & Health'}
+              </div>
+              <div className="text-xs text-neutral-700 dark:text-neutral-300">
+                {rashiData.familyOdia} • {rashiData.healthOdia}
+              </div>
             </div>
           </div>
 
           {/* Remedial Mantra */}
           <div className="p-3 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-800/50 flex items-center justify-between font-odia">
-            <span className="text-xs font-bold text-purple-800 dark:text-purple-300">ଦୈନିକ ଶୁଭ ମନ୍ତ୍ର:</span>
+            <span className="text-xs font-bold text-purple-800 dark:text-purple-300">
+              {isOdia ? 'ଦୈନିକ ଶୁଭ ମନ୍ତ୍ର:' : 'Daily Remedial Mantra:'}
+            </span>
             <span className="text-xs font-black text-purple-950 dark:text-purple-200 font-mono tracking-wide">{rashiData.mantraOdia}</span>
           </div>
 
@@ -151,7 +168,7 @@ export const RashifalView: React.FC<RashifalViewProps> = ({ language }) => {
             <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-100 dark:border-neutral-800 space-y-1">
               <div className="flex items-center gap-1.5 text-neutral-400 text-[11px]">
                 <Palette className="w-3.5 h-3.5" />
-                <span>ଶୁଭ ରଙ୍ଗ</span>
+                <span>{isOdia ? 'ଶୁଭ ରଙ୍ଗ' : 'Lucky Color'}</span>
               </div>
               <strong className="text-sm font-bold text-neutral-900 dark:text-white block">
                 {isOdia ? rashiData.colorOdia : rashiData.colorEn}
@@ -161,17 +178,17 @@ export const RashifalView: React.FC<RashifalViewProps> = ({ language }) => {
             <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-100 dark:border-neutral-800 space-y-1">
               <div className="flex items-center gap-1.5 text-neutral-400 text-[11px]">
                 <Hash className="w-3.5 h-3.5" />
-                <span>ଶୁଭ ଅଙ୍କ</span>
+                <span>{isOdia ? 'ଶୁଭ ଅଙ୍କ' : 'Lucky Number'}</span>
               </div>
-              <strong className="text-sm font-bold text-neutral-900 dark:text-white block">
-                {toOdiaNumber(rashiData.num)}
+              <strong className="text-sm font-bold text-neutral-900 dark:text-white block font-sans">
+                {isOdia ? toOdiaNumber(rashiData.num) : rashiData.num}
               </strong>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-100 dark:border-neutral-800 space-y-1">
               <div className="flex items-center gap-1.5 text-neutral-400 text-[11px]">
                 <Clock className="w-3.5 h-3.5" />
-                <span>ଶୁଭ ମୁହୂର୍ତ୍ତ</span>
+                <span>{isOdia ? 'ଶୁଭ ମୁହୂର୍ତ୍ତ' : 'Auspicious Window'}</span>
               </div>
               <strong className="text-xs font-bold text-neutral-900 dark:text-white block">
                 {isOdia ? '୦୮:୩୦ - ୧୦:୧୫' : '08:30 - 10:15 AM'}
@@ -181,10 +198,10 @@ export const RashifalView: React.FC<RashifalViewProps> = ({ language }) => {
             <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-100 dark:border-neutral-800 space-y-1">
               <div className="flex items-center gap-1.5 text-neutral-400 text-[11px]">
                 <Star className="w-3.5 h-3.5" />
-                <span>ଇଷ୍ଟଦେବ</span>
+                <span>{isOdia ? 'ଇଷ୍ଟଦେବ' : 'Ruling Deity'}</span>
               </div>
               <strong className="text-xs font-bold text-neutral-900 dark:text-white block truncate">
-                {selectedRashi.rulerOdia}
+                {isOdia ? selectedRashi.rulerOdia : selectedRashi.rulerEn}
               </strong>
             </div>
           </div>

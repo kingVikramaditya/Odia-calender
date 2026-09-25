@@ -163,7 +163,13 @@ export const FestivalsView: React.FC<FestivalsViewProps> = ({
                       ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
                       : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                   }`}>
-                    {isGovt ? 'ସରକାରୀ ଛୁଟି' : fest.type === 'festival' ? 'ମହାପର୍ବ' : fest.type === 'ekadashi' ? 'ପବିତ୍ର ଏକାଦଶୀ' : 'ଓଷା / ବ୍ରତ'}
+                    {isGovt 
+                      ? (isOdia ? 'ସରକାରୀ ଛୁଟି' : 'Govt Holiday') 
+                      : fest.type === 'festival' 
+                      ? (isOdia ? 'ମହାପର୍ବ' : 'Major Festival') 
+                      : fest.type === 'ekadashi' 
+                      ? (isOdia ? 'ପବିତ୍ର ଏକାଦଶୀ' : 'Ekadashi') 
+                      : (isOdia ? 'ଓଷା / ବ୍ରତ' : 'Osha / Brata')}
                   </span>
 
                   {fest.dateStr && (
@@ -179,7 +185,10 @@ export const FestivalsView: React.FC<FestivalsViewProps> = ({
                   </h4>
                   {fest.deityOdia && !isGovt && (
                     <p className="text-xs text-neutral-500 font-odia mt-0.5">
-                      ଇଷ୍ଟଦେବ: <span className="font-semibold text-neutral-700 dark:text-neutral-300">{fest.deityOdia}</span>
+                      {isOdia ? 'ଇଷ୍ଟଦେବ: ' : 'Deity: '}
+                      <span className="font-semibold text-neutral-700 dark:text-neutral-300">
+                        {isOdia ? fest.deityOdia : (fest.deityEn || fest.deityOdia)}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -190,12 +199,12 @@ export const FestivalsView: React.FC<FestivalsViewProps> = ({
                 </p>
 
                 {/* Rituals if available */}
-                {fest.ritualsOdia && (
+                {(fest.ritualsOdia || fest.ritualsEn) && (
                   <div className="p-3 rounded-2xl bg-white/80 dark:bg-neutral-800/60 border border-neutral-100 dark:border-neutral-800 text-[11px] text-neutral-600 dark:text-neutral-400 font-odia">
                     <strong className="text-neutral-800 dark:text-neutral-200 block text-[10px] uppercase">
-                      {isGovt ? 'ବାର ଓ ତାରିଖ:' : 'ପୂଜା ବିଧି ଓ ଭୋଗ:'}
+                      {isGovt ? (isOdia ? 'ବାର ଓ ତାରିଖ:' : 'Day & Date:') : (isOdia ? 'ପୂଜା ବିଧି ଓ ଭୋଗ:' : 'Rituals & Offerings:')}
                     </strong>
-                    <span>{fest.ritualsOdia}</span>
+                    <span>{isOdia ? fest.ritualsOdia : (fest.ritualsEn || fest.ritualsOdia)}</span>
                   </div>
                 )}
               </div>

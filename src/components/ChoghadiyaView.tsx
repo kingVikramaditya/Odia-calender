@@ -12,19 +12,28 @@ import {
 } from 'lucide-react';
 import { PanchangDay, LanguageMode, ChoghadiyaSlot } from '../types';
 import { toOdiaNumber } from '../data/odiaConstants';
+import { formatLocalDateKey, isCurrentTimeInWindow } from '../utils/panchangEngine';
 
 interface ChoghadiyaViewProps {
   day: PanchangDay;
   language: LanguageMode;
   onSelectDatePrompt?: () => void;
+  currentLiveTime?: Date;
 }
 
 export const ChoghadiyaView: React.FC<ChoghadiyaViewProps> = ({
   day,
   language,
+  currentLiveTime,
 }) => {
-  const [activeTab, setActiveTab] = useState<'day' | 'night'>('day');
   const isOdia = language === 'or';
+  const isToday = currentLiveTime ? day.dateStr === formatLocalDateKey(currentLiveTime) : false;
+
+  const [activeTab, setActiveTab] = useState<'day' | 'night'>(() => {
+    if (!currentLiveTime) return 'day';
+    const isNightSlotRunning = day.choghadiyaNight.some(s => isCurrentTimeInWindow(currentLiveTime, s.start, s.end));
+    return isNightSlotRunning ? 'night' : 'day';
+  });
 
   const currentSlots = activeTab === 'day' ? day.choghadiyaDay : day.choghadiyaNight;
 
@@ -107,7 +116,7 @@ export const ChoghadiyaView: React.FC<ChoghadiyaViewProps> = ({
             </div>
             
             <h2 className="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-white font-odia tracking-tight">
-              {isOdia ? `${day.odiaMonthNameOdia} ${day.odiaDayOfSolarMonthOdia} ଦିନର ଚୌଘଡ଼ିଆ ମୁହୂର୍ତ୍ତ` : `Choghadiya Timings for ${day.dateStr}`}
+              {isOdia ? `${day.solarMonthNameOdia || day.odiaMonthNameOdia} ${day.odiaDayOfSolarMonthOdia} ଦିନର ଚୌଘଡ଼ିଆ ମୁହୂର୍ତ୍ତ` : `Choghadiya Timings for ${day.solarMonthNameEn || day.odiaMonthNameEn} Day ${day.odiaDayOfSolarMonth} (${day.dateStr})`}
             </h2>
             
             <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-400 font-odia max-w-2xl leading-relaxed">
@@ -154,7 +163,7 @@ export const ChoghadiyaView: React.FC<ChoghadiyaViewProps> = ({
               {isOdia ? 'ସୂର୍ଯ୍ୟୋଦୟ (Sunrise)' : 'Sunrise'}
             </span>
             <span className="font-bold text-neutral-900 dark:text-white text-sm">
-              {toOdiaNumber(day.timings.sunrise)}
+              {isOdia ? toOdiaNumber(day.timings.sunrise) : day.timings.sunrise}
             </span>
           </div>
 
@@ -163,7 +172,7 @@ export const ChoghadiyaView: React.FC<ChoghadiyaViewProps> = ({
               {isOdia ? 'ସୂର୍ଯ୍ୟାସ୍ତ (Sunset)' : 'Sunset'}
             </span>
             <span className="font-bold text-neutral-900 dark:text-white text-sm">
-              {toOdiaNumber(day.timings.sunset)}
+              {isOdia ? toOdiaNumber(day.timings.sunset) : day.timings.sunset}
             </span>
           </div>
 
@@ -172,7 +181,7 @@ export const ChoghadiyaView: React.FC<ChoghadiyaViewProps> = ({
               {isOdia ? 'ଦିବାରମାନ (Day Duration)' : 'Daylight Span'}
             </span>
             <span className="font-bold text-neutral-900 dark:text-white text-sm">
-              {day.timings.dayLength}
+              {isOdia ? toOdiaNumber(day.timings.dayLength) : day.timings.dayLength}
             </span>
           </div>
 
@@ -181,7 +190,7 @@ export const ChoghadiyaView: React.FC<ChoghadiyaViewProps> = ({
               {isOdia ? 'ବାର (Weekday)' : 'Weekday'}
             </span>
             <span className="font-bold text-neutral-900 dark:text-white text-sm">
-              {day.varaOdia} ({day.varaEn})
+              {isOdia ? `${day.varaOdia} (${day.varaEn})` : day.varaEn}
             </span>
           </div>
         </div>
@@ -192,27 +201,36 @@ export const ChoghadiyaView: React.FC<ChoghadiyaViewProps> = ({
         {currentSlots.map((slot) => {
           const style = getSlotColor(slot.quality);
           const recommendation = getRecommendation(slot.nameEn);
+          const isRunningNow = isToday && isCurrentTimeInWindow(currentLiveTime!, slot.start, slot.end);
 
           return (
             <div
               key={slot.index}
               id={`choghadiya-slot-${slot.index}`}
-              className={`p-5 rounded-3xl border transition-all hover:shadow-md ${style.bg} ${style.border}`}
+              className={`p-5 rounded-3xl border transition-all hover:shadow-md ${style.bg} ${style.border} ${
+                isRunningNow ? 'ring-2 ring-amber-500 shadow-md transform scale-[1.01]' : ''
+              }`}
             >
               <div className="flex items-center justify-between gap-3 pb-3 border-b border-neutral-200/50 dark:border-neutral-700/50">
                 <div className="flex items-center gap-2.5">
-                  <span className={`w-2.5 h-2.5 rounded-full ${style.dot}`} />
+                  <span className={`w-2.5 h-2.5 rounded-full ${isRunningNow ? 'bg-amber-500 animate-ping' : style.dot}`} />
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="text-lg font-bold text-neutral-900 dark:text-white font-odia">
-                        {slot.nameOdia}
+                        {isOdia ? slot.nameOdia : slot.nameEn}
                       </h4>
                       <span className="text-xs font-semibold text-neutral-400 font-sans">
-                        ({slot.nameEn})
+                        {isOdia ? `(${slot.nameEn})` : `(${slot.nameOdia})`}
                       </span>
+                      {isRunningNow && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white animate-pulse shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                          <span>{isOdia ? 'ବର୍ତ୍ତମାନ ଚାଲୁଅଛି' : 'ACTIVE NOW'}</span>
+                        </span>
+                      )}
                     </div>
                     <span className="text-[11px] text-neutral-500 font-odia">
-                      ଅଧିପତି ଗ୍ରହ: {slot.ruler}
+                      {isOdia ? `ଅଧିପତି ଗ୍ରହ: ${slot.ruler}` : `Ruling Planet: ${slot.ruler}`}
                     </span>
                   </div>
                 </div>
@@ -227,11 +245,13 @@ export const ChoghadiyaView: React.FC<ChoghadiyaViewProps> = ({
                 <div className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200 font-bold text-sm font-odia">
                   <Clock className="w-4 h-4 text-neutral-400 shrink-0" />
                   <span>
-                    {toOdiaNumber(slot.start)} ରୁ {toOdiaNumber(slot.end)}
+                    {isOdia 
+                      ? `${toOdiaNumber(slot.start)} ରୁ ${toOdiaNumber(slot.end)}` 
+                      : `${slot.start} to ${slot.end}`}
                   </span>
                 </div>
                 <span className="text-[11px] font-medium text-neutral-500 font-odia">
-                  ମୁହୂର୍ତ୍ତ {toOdiaNumber(slot.index)}
+                  {isOdia ? `ମୁହୂର୍ତ୍ତ ${toOdiaNumber(slot.index)}` : `Slot ${slot.index}`}
                 </span>
               </div>
 

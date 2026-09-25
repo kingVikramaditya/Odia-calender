@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --font-odia: 'Anek Odia', 'Noto Sans Oriya', 'Plus Jakarta Sans', sans-serif;
+    --font-odia: 'Anek Odia', 'Noto Sans Oriya', 'Plus Jakarta Sans', 'Kalinga', 'Nirmala UI', system-ui, -apple-system, sans-serif;
     color-scheme: light;
   }
 
@@ -19,14 +19,14 @@
   }
 
   body {
-    font-family: 'Anek Odia', 'Plus Jakarta Sans', 'Noto Sans Oriya', sans-serif;
+    font-family: 'Anek Odia', 'Plus Jakarta Sans', 'Noto Sans Oriya', 'Kalinga', 'Nirmala UI', system-ui, -apple-system, sans-serif;
     line-height: 1.5;
     letter-spacing: normal;
   }
 }
 
 .font-odia {
-  font-family: 'Anek Odia', 'Noto Sans Oriya', sans-serif;
+  font-family: 'Anek Odia', 'Noto Sans Oriya', 'Kalinga', 'Nirmala UI', system-ui, sans-serif;
   letter-spacing: normal !important;
   line-height: 1.45;
 }
@@ -53,17 +53,20 @@
     margin: 8mm;
   }
   
-  html, body {
-    background: #ffffff !important;
-    color: #000000 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  *, *::before, *::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Hide everything except the dedicated print portal during print */
-  body > *:not(#print-document-portal) {
+  html, body {
+    background: #ffffff !important;
+    color: #171717 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Only hide siblings if explicitly printing via the main window portal */
+  body.has-print-portal > *:not(#print-document-portal) {
     display: none !important;
   }
 
@@ -74,7 +77,7 @@
     position: static !important;
     width: 100% !important;
     background: #ffffff !important;
-    color: #000000 !important;
+    color: #171717 !important;
   }
 
   .page-break-after {
@@ -87,3 +90,258 @@
     break-inside: avoid;
   }
 }
+
+/* ==========================================================================
+   WEATHER PANEL LIVE ANIMATIONS
+   GPU-composited CSS keyframes for organic weather backdrop elements
+   ========================================================================== */
+
+/* 1. Rain Droplet Falling Animation */
+@keyframes weather-raindrop {
+  0% {
+    transform: translateY(-30px) translateX(0) rotate(-14deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(165px) translateX(-35px) rotate(-14deg);
+    opacity: 0;
+  }
+}
+
+/* 2. Water Ripple on Floor */
+@keyframes weather-water-ripple {
+  0% {
+    transform: scale(0.1);
+    opacity: 0.85;
+  }
+  60% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* 3. Solar Ray Spin (Konark Chakra subtle rotation) */
+@keyframes weather-sun-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 4. Solar Ray Spin Reverse */
+@keyframes weather-sun-spin-rev {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* 5. Sun Core Breathing Pulse */
+@keyframes weather-sun-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+/* 6. Sun Solar Dust Float */
+@keyframes weather-solar-mote {
+  0% {
+    transform: translateY(18px) translateX(0) scale(0.6);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.7;
+    transform: translateY(0px) translateX(6px) scale(1);
+  }
+  100% {
+    transform: translateY(-28px) translateX(-4px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* 7. Heatwave Sine Wave Horizontal Oscillations */
+@keyframes weather-heat-wave-1 {
+  0%, 100% {
+    transform: translateX(0) scaleY(1);
+  }
+  50% {
+    transform: translateX(-24px) scaleY(1.3);
+  }
+}
+
+@keyframes weather-heat-wave-2 {
+  0%, 100% {
+    transform: translateX(0) scaleY(1.2);
+  }
+  50% {
+    transform: translateX(28px) scaleY(0.85);
+  }
+}
+
+/* 8. Heat Haze Rising Shimmer */
+@keyframes weather-heat-haze-rise {
+  0% {
+    transform: translateY(12px) scaleX(1);
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.65;
+  }
+  70% {
+    transform: translateY(-12px) scaleX(1.15);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-30px) scaleX(0.9);
+    opacity: 0;
+  }
+}
+
+/* 9. Heatwave Glow Aura Pulse */
+@keyframes weather-heat-glow-pulse {
+  0%, 100% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.38;
+  }
+}
+
+/* 10. Cloud Drifting Across Skies */
+@keyframes weather-cloud-drift-slow {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(135%);
+  }
+}
+
+@keyframes weather-cloud-drift-med {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(145%);
+  }
+}
+
+/* 11. Fog Mist Breathing */
+@keyframes weather-fog-pulse {
+  0%, 100% {
+    transform: translateX(-8px) scaleY(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateX(12px) scaleY(1.2);
+    opacity: 0.55;
+  }
+}
+
+/* 12. Lunar Halo Breathe */
+@keyframes weather-moon-breathe {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(254, 240, 138, 0.45));
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 20px rgba(254, 240, 138, 0.75));
+  }
+}
+
+/* 13. Night Star Twinkle */
+@keyframes weather-star-sparkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.75);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+/* 14. Shooting Star / Meteor Streak */
+@keyframes weather-shooting-star {
+  0% {
+    transform: translate(60px, -20px) rotate(-35deg) scaleX(0);
+    opacity: 0;
+  }
+  4% {
+    transform: translate(40px, 0px) rotate(-35deg) scaleX(1);
+    opacity: 0.95;
+  }
+  12% {
+    transform: translate(-70px, 75px) rotate(-35deg) scaleX(1.3);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-70px, 75px) rotate(-35deg) scaleX(0);
+    opacity: 0;
+  }
+}
+
+/* 15. Thunderstorm Lightning Sheet Flash */
+@keyframes weather-lightning-flash {
+  0%, 88%, 95%, 100% {
+    opacity: 0;
+  }
+  89% {
+    opacity: 0.35;
+  }
+  90% {
+    opacity: 0.05;
+  }
+  91% {
+    opacity: 0.6;
+  }
+  93% {
+    opacity: 0.08;
+  }
+}
+
+/* 16. Lightning Bolt Strike Glow */
+@keyframes weather-bolt-flash {
+  0%, 88%, 95%, 100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  89% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+  91% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  93% {
+    opacity: 0.1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+

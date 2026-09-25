@@ -94,7 +94,7 @@ export const MuhurtaModal: React.FC<MuhurtaModalProps> = ({
         <div className="space-y-3 mt-1">
           {filteredMuhurtas.length === 0 ? (
             <div className="p-8 text-center text-neutral-400 font-odia">
-              କୌଣସି ମୁହୂର୍ତ୍ତ ମିଳିଲା ନାହିଁ । ଅନ୍ୟ ବିଭାଗ ବାଛନ୍ତୁ ।
+              {isOdia ? 'କୌଣସି ମୁହୂର୍ତ୍ତ ମିଳିଲା ନାହିଁ । ଅନ୍ୟ ବିଭାଗ ବାଛନ୍ତୁ ।' : 'No muhurtas found. Please select another category.'}
             </div>
           ) : (
             filteredMuhurtas.map((muh) => (
@@ -110,7 +110,9 @@ export const MuhurtaModal: React.FC<MuhurtaModalProps> = ({
                     </span>
                     <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-odia">
                       <CheckCircle className="w-3.5 h-3.5" />
-                      {muh.rating === 'Uttama' ? 'ଉତ୍ତମ ମୁହୂର୍ତ୍ତ' : 'ମଧ୍ୟମ'}
+                      {muh.rating === 'Uttama' 
+                        ? (isOdia ? 'ଉତ୍ତମ ମୁହୂର୍ତ୍ତ' : 'Excellent') 
+                        : (isOdia ? 'ମଧ୍ୟମ' : 'Moderate')}
                     </span>
                   </div>
 
@@ -126,15 +128,15 @@ export const MuhurtaModal: React.FC<MuhurtaModalProps> = ({
 
                     <div className="flex items-center gap-1 text-neutral-700 dark:text-neutral-300">
                       <Clock className="w-3.5 h-3.5 text-orange-500" />
-                      <span>{toOdiaNumber(muh.timeWindow)}</span>
+                      <span>{isOdia ? toOdiaNumber(muh.timeWindow) : muh.timeWindow}</span>
                     </div>
 
                     {muh.nakshatra && (
-                      <span>ନକ୍ଷତ୍ର: <strong>{muh.nakshatra}</strong></span>
+                      <span>{isOdia ? 'ନକ୍ଷତ୍ର: ' : 'Nakshatra: '}<strong>{muh.nakshatra}</strong></span>
                     )}
 
                     {muh.tithi && (
-                      <span>ତିଥି: <strong>{muh.tithi}</strong></span>
+                      <span>{isOdia ? 'ତିଥି: ' : 'Tithi: '}<strong>{muh.tithi}</strong></span>
                     )}
                   </div>
                 </div>
@@ -148,7 +150,7 @@ export const MuhurtaModal: React.FC<MuhurtaModalProps> = ({
                   }}
                   className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold font-odia whitespace-nowrap shadow-sm transition-colors self-start sm:self-center"
                 >
-                  କ୍ୟାଲେଣ୍ଡରରେ ଦେଖନ୍ତୁ →
+                  {isOdia ? 'କ୍ୟାଲେଣ୍ଡରରେ ଦେଖନ୍ତୁ →' : 'View in Calendar →'}
                 </button>
               </div>
             ))

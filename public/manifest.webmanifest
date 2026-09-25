@@ -1,0 +1,21 @@
+{
+  "name": "ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ଓ ପାଞ୍ଜି (Odia Calendar & Panchang)",
+  "short_name": "ଓଡ଼ିଆ ପାଞ୍ଜି",
+  "description": "ଅଫଲାଇନ୍ ଦୃକ ଓଡ଼ିଆ ପାଞ୍ଜି, କୋହେନୂର ଓ ବିରଜା ଶୈଳୀ କ୍ୟାଲେଣ୍ଡର, ଦୈନିକ ତିଥି, ନକ୍ଷତ୍ର, ଶୁଭ ମୁହୂର୍ତ୍ତ, ଚୌଘଡ଼ିଆ ଓ ପର୍ବପର୍ବାଣୀ। Fully works offline and online.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#ea580c",
+  "orientation": "portrait-primary",
+  "lang": "or",
+  "categories": ["lifestyle", "utilities", "productivity"],
+  "icons": [
+    {
+      "src": "./app-icon.png",
+      "sizes": "192x192 512x512 1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

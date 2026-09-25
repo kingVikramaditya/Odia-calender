@@ -4,7 +4,7 @@ import {
   Search, 
   Moon, 
   Sun, 
-  Printer, 
+  FileDown, 
   Bookmark, 
   Compass, 
   BookOpen, 
@@ -13,9 +13,13 @@ import {
   Share2,
   Clock,
   Flame,
-  CheckCircle2
+  CheckCircle2,
+  WifiOff,
+  ShieldCheck
 } from 'lucide-react';
 import { LanguageMode, ThemeMode } from '../types';
+import creatorPhoto from '../assets/creator.jpg';
+import appIcon from '../assets/app-icon.png';
 
 export type SaaSViewMode = 'calendar' | 'choghadiya' | 'muhurta' | 'rashifal' | 'festivals';
 
@@ -30,8 +34,12 @@ interface HeaderProps {
   onOpenSearch: () => void;
   onOpenAnnual: () => void;
   onOpenReminders: () => void;
-  onOpenPrint: () => void;
+  onOpenDownloadPdf: () => void;
+  onOpenPrint?: () => void;
   onOpenShare: () => void;
+  onOpenProfile?: () => void;
+  onOpenOfflineInfo?: () => void;
+  isOnline?: boolean;
   savedCount: number;
 }
 
@@ -46,8 +54,12 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
   onOpenAnnual,
   onOpenReminders,
+  onOpenDownloadPdf,
   onOpenPrint,
   onOpenShare,
+  onOpenProfile,
+  onOpenOfflineInfo,
+  isOnline = true,
   savedCount,
 }) => {
   const isOdia = language === 'or';
@@ -70,25 +82,34 @@ export const Header: React.FC<HeaderProps> = ({
           
           {/* Left: Brand Identity + Drik Badge */}
           <div className="flex items-center gap-3">
-            <div 
-              onClick={() => onSetView('calendar')}
-              className="flex items-center gap-2.5 cursor-pointer group"
-            >
-              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-orange-500/30 dark:ring-orange-400/40 shadow-sm shrink-0 group-hover:scale-105 transition-transform bg-neutral-900">
+            <div className="flex items-center gap-2.5">
+              {/* App Brand Logo Icon */}
+              <button
+                type="button"
+                id="header-app-logo-btn"
+                onClick={() => onSetView('calendar')}
+                className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-orange-500/40 hover:ring-orange-500 dark:ring-orange-400/50 dark:hover:ring-orange-400 shadow-sm shrink-0 hover:scale-105 transition-all bg-neutral-900 focus:outline-none cursor-pointer group"
+                title={isOdia ? 'ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ଓ ପାଞ୍ଜି' : 'Odia Calendar & Panchang'}
+                aria-label={isOdia ? 'କ୍ୟାଲେଣ୍ଡର ଦେଖନ୍ତୁ' : 'View Calendar'}
+              >
                 <img 
-                  src="/logo.jpg" 
-                  alt={isOdia ? 'ଓଡ଼ିଆ ପାଞ୍ଜିକା' : 'Odia Panjika'} 
-                  className="w-full h-full object-cover object-center"
+                  src={appIcon} 
+                  alt="Odia Calendar App Icon" 
+                  className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-300"
                 />
-              </div>
+              </button>
 
-              <div>
+              {/* Title links to Calendar view */}
+              <div 
+                onClick={() => onSetView('calendar')}
+                className="cursor-pointer group/title"
+              >
                 <div className="flex items-center gap-2">
-                  <h1 className="text-base sm:text-lg font-black text-neutral-900 dark:text-white font-odia tracking-tight">
+                  <h1 className={`text-base sm:text-lg font-black text-neutral-900 dark:text-white ${isOdia ? 'font-odia' : 'font-sans'} tracking-tight group-hover/title:text-orange-600 dark:group-hover/title:text-orange-400 transition-colors`}>
                     {isOdia ? 'ଓଡ଼ିଆ ପାଞ୍ଜିକା' : 'Odia Panjika'}
                   </h1>
                 </div>
-                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium font-odia">
+                <p className={`text-[10px] text-neutral-500 dark:text-neutral-400 font-medium ${isOdia ? 'font-odia' : 'font-sans'}`}>
                   {isOdia ? 'ପ୍ରାମାଣିକ କ୍ୟାଲେଣ୍ଡର ଓ ଦୈନିକ ପଞ୍ଚାଙ୍ଗ ୨୦୨୬' : 'Authentic Calendar & Daily Panchang 2026'}
                 </p>
               </div>
@@ -98,11 +119,25 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="header-today-btn"
               onClick={onGoToToday}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/60 border border-orange-200 dark:border-orange-800/80 text-xs font-bold text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900/60 transition-all font-odia shadow-2xs"
+              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/60 border border-orange-200 dark:border-orange-800/80 text-xs font-bold text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900/60 transition-all ${isOdia ? 'font-odia' : 'font-sans'} shadow-2xs`}
             >
               <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
               <span>{isOdia ? 'ଆଜି' : 'Today'}</span>
             </button>
+
+            {/* Offline Pill if offline */}
+            {!isOnline && (
+              <button
+                type="button"
+                id="header-offline-btn"
+                onClick={onOpenOfflineInfo}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-100/90 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800/80 text-amber-800 dark:text-amber-300 text-xs font-bold hover:bg-amber-200 dark:hover:bg-amber-900/80 transition-all ${isOdia ? 'font-odia' : 'font-sans'} shadow-2xs cursor-pointer animate-pulse`}
+                title={isOdia ? "ଅଫଲାଇନ୍ ମୋଡ୍: ପଞ୍ଜିକା, ତିଥି ଓ ପର୍ବପର୍ବାଣୀ ସମ୍ପୂର୍ଣ୍ଣ କାର୍ଯ୍ୟକ୍ଷମ" : "Offline Mode: Calendar & Panchang fully functional offline"}
+              >
+                <WifiOff className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span>{isOdia ? 'ଅଫଲାଇନ୍' : 'Offline'}</span>
+              </button>
+            )}
           </div>
 
           {/* Center: SaaS View Switcher Tabs */}
@@ -114,7 +149,7 @@ export const Header: React.FC<HeaderProps> = ({
                   key={tab.id}
                   id={`nav-tab-${tab.id}`}
                   onClick={() => onSetView(tab.id)}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all font-odia ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${isOdia ? 'font-odia' : 'font-sans'} ${
                     isActive
                       ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs font-bold'
                       : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
@@ -136,10 +171,10 @@ export const Header: React.FC<HeaderProps> = ({
               id="header-search-btn"
               onClick={onOpenSearch}
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-xs font-medium transition-colors"
-              title="Search festivals, Ekadashi, or Tithi"
+              title={isOdia ? "ପର୍ବ, ଏକାଦଶୀ କିମ୍ବା ତିଥି ଖୋଜନ୍ତୁ" : "Search festivals, Ekadashi, or Tithi"}
             >
               <Search className="w-3.5 h-3.5" />
-              <span className="hidden xl:inline font-odia">{isOdia ? 'ଖୋଜନ୍ତୁ' : 'Search'}</span>
+              <span className={`hidden xl:inline ${isOdia ? 'font-odia' : 'font-sans'}`}>{isOdia ? 'ଖୋଜନ୍ତୁ' : 'Search'}</span>
               <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-mono text-neutral-400 bg-white dark:bg-neutral-700 rounded border border-neutral-200 dark:border-neutral-600">
                 ⌘K
               </kbd>
@@ -170,7 +205,7 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </button>
 
-            {/* Share & Print */}
+            {/* Share & Download as PDF */}
             <button
               id="header-share-btn"
               onClick={onOpenShare}
@@ -181,13 +216,30 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
-              id="header-print-btn"
-              onClick={onOpenPrint}
-              className="p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors hidden sm:inline-flex"
-              title={isOdia ? 'ପ୍ରିଣ୍ଟ୍ କରନ୍ତୁ' : 'Print Calendar'}
+              id="header-download-pdf-btn"
+              onClick={onOpenDownloadPdf || onOpenPrint}
+              className="p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-orange-600 dark:hover:text-orange-400 transition-colors hidden sm:inline-flex items-center justify-center cursor-pointer"
+              title={isOdia ? 'PDF ଡାଉନଲୋଡ୍ କରନ୍ତୁ' : 'Download as PDF'}
             >
-              <Printer className="w-4 h-4 text-neutral-500" />
+              <FileDown className="w-4 h-4 text-orange-600 dark:text-orange-400" />
             </button>
+
+            {/* Offline Readiness Info Button */}
+            {onOpenOfflineInfo && (
+              <button
+                type="button"
+                id="header-offline-info-btn"
+                onClick={onOpenOfflineInfo}
+                className={`p-2 rounded-xl transition-colors hidden sm:inline-flex items-center cursor-pointer ${
+                  !isOnline
+                    ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60'
+                    : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-emerald-600 dark:hover:text-emerald-400'
+                }`}
+                title={isOdia ? 'ଅଫଲାଇନ୍ କାର୍ଯ୍ୟକ୍ଷମତା: ଇଣ୍ଟରନେଟ୍ ବିନା ମଧ୍ୟ ସମ୍ପୂର୍ଣ୍ଣ ଚାଲିବ' : 'Offline Capabilities: Works 100% without internet'}
+              >
+                {!isOnline ? <WifiOff className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4 text-emerald-500" />}
+              </button>
+            )}
 
             {/* Language Switcher */}
             <div className="flex items-center bg-neutral-100 dark:bg-neutral-800 p-0.5 rounded-xl border border-neutral-200/80 dark:border-neutral-700 text-xs">
@@ -217,10 +269,27 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="header-theme-btn"
               onClick={onToggleTheme}
-              className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+              className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} theme`}
             >
               {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-neutral-700" />}
+            </button>
+
+            {/* Creator Profile Avatar in Toolbar */}
+            <button
+              id="header-profile-toolbar-btn"
+              onClick={onOpenProfile}
+              className="p-1 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all flex items-center gap-1.5 focus:outline-none cursor-pointer group"
+              title={isOdia ? 'ପ୍ରୋଫାଇଲ୍ ବିବରଣୀ: ଶ୍ରୀ ନନ୍ଦନ କୁମାର ମହାପାତ୍ର' : 'Creator Profile: Sri Nandan Kumar Mohapatra'}
+              aria-label="Profile"
+            >
+              <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-orange-500/40 group-hover:ring-orange-500 group-hover:scale-105 transition-all shadow-xs">
+                <img 
+                  src={creatorPhoto} 
+                  alt="Sri Nandan Kumar Mohapatra" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </button>
           </div>
 
@@ -234,7 +303,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 key={tab.id}
                 onClick={() => onSetView(tab.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all font-odia ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${isOdia ? 'font-odia' : 'font-sans'} ${
                   isActive
                     ? 'bg-orange-500 text-white shadow-xs font-bold'
                     : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300'

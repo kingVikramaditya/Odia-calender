@@ -216,14 +216,16 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
         {/* Quick Tag Pills */}
         <div className="flex items-center gap-1.5 px-4 py-2.5 overflow-x-auto bg-neutral-50/60 dark:bg-neutral-800/40 border-b border-neutral-100 dark:border-neutral-800 text-xs no-scrollbar">
-          <span className="text-[11px] font-bold text-neutral-400 shrink-0 font-odia">ଶୀଘ୍ର ସନ୍ଧାନ:</span>
+          <span className="text-[11px] font-bold text-neutral-400 shrink-0 font-odia">
+            {isOdia ? 'ଶୀଘ୍ର ସନ୍ଧାନ:' : 'Quick Search:'}
+          </span>
           {quickTags.map((tag, idx) => (
             <button
               key={idx}
-              onClick={() => setQuery(tag.label)}
+              onClick={() => setQuery(isOdia ? tag.label : tag.en)}
               className="px-2.5 py-1 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-orange-50 hover:border-orange-300 dark:hover:bg-neutral-700 font-odia whitespace-nowrap transition-colors cursor-pointer"
             >
-              {tag.label}
+              {isOdia ? tag.label : tag.en}
             </button>
           ))}
         </div>
@@ -232,8 +234,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
           {results.length === 0 ? (
             <div className="py-12 text-center text-neutral-400 font-odia space-y-2">
-              <p className="text-base font-bold">କୌଣସି ପର୍ବ ମିଳିଲା ନାହିଁ ।</p>
-              <p className="text-xs">ଦୟାକରି ଇଂରାଜୀ କିମ୍ବା ଓଡ଼ିଆରେ ଅନ୍ୟ ଶବ୍ଦ ଖୋଜନ୍ତୁ (ଯଥା: Durga, Ratha, Raja) ।</p>
+              <p className="text-base font-bold">
+                {isOdia ? 'କୌଣସି ପର୍ବ ମିଳିଲା ନାହିଁ ।' : 'No festivals found.'}
+              </p>
+              <p className="text-xs">
+                {isOdia 
+                  ? 'ଦୟାକରି ଇଂରାଜୀ କିମ୍ବା ଓଡ଼ିଆରେ ଅନ୍ୟ ଶବ୍ଦ ଖୋଜନ୍ତୁ (ଯଥା: Durga, Ratha, Raja) ।'
+                  : 'Please search in English or Odia (e.g. Durga, Ratha, Raja, Holidays).'}
+              </p>
             </div>
           ) : (
             results.map((fest) => {
@@ -266,7 +274,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                           ? 'bg-yellow-100 dark:bg-yellow-950 text-yellow-900 dark:text-yellow-200'
                           : 'bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300'
                       }`}>
-                        {isGovt ? 'ସରକାରୀ ଛୁଟି' : fest.type === 'festival' ? 'ମହାପର୍ବ' : fest.type === 'purnima' ? 'ପୂର୍ଣ୍ଣିମା' : 'ଓଷା / ବ୍ରତ'}
+                        {isGovt 
+                          ? (isOdia ? 'ସରକାରୀ ଛୁଟି' : 'Govt Holiday') 
+                          : fest.type === 'festival' 
+                          ? (isOdia ? 'ମହାପର୍ବ' : 'Festival') 
+                          : fest.type === 'purnima' 
+                          ? (isOdia ? 'ପୂର୍ଣ୍ଣିମା' : 'Purnima') 
+                          : (isOdia ? 'ଓଷା / ବ୍ରତ' : 'Osha / Brata')}
                       </span>
 
                       <h4 className="text-sm sm:text-base font-bold text-neutral-900 dark:text-white font-odia truncate leading-snug">
@@ -287,7 +301,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   </div>
 
                   <div className="flex items-center gap-1 shrink-0 text-neutral-400 group-hover:text-orange-600 dark:group-hover:text-orange-400 group-hover:translate-x-1 transition-all">
-                    <span className="text-[11px] font-bold font-odia hidden sm:inline">ଦେଖନ୍ତୁ</span>
+                    <span className="text-[11px] font-bold font-odia hidden sm:inline">
+                      {isOdia ? 'ଦେଖନ୍ତୁ' : 'View'}
+                    </span>
                     <ArrowRight className="w-4 h-4" />
                   </div>
                 </div>

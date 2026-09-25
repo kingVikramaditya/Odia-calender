@@ -107,6 +107,11 @@ export interface PanchangDay {
   odiaMonthNameEn: string; // e.g. "Baisakha"
   odiaDayOfSolarMonth: number; // day in Odia month (e.g. 7)
   odiaDayOfSolarMonthOdia: string; // "୭"
+  lunarMonthIndex?: number; // 0 to 11 (true lunar month)
+  lunarMonthNameOdia?: string; // e.g. "ଭାଦ୍ରବ", "ଆଶ୍ୱିନ"
+  lunarMonthNameEn?: string;
+  solarMonthNameOdia?: string; // e.g. "କନ୍ୟା"
+  solarMonthNameEn?: string;
   odiaYearSal: number; // e.g. 1433 Odia Sal
   sakabda: number; // e.g. 1948 Sakabda
   vikramSamvat: number; // e.g. 2083 Vikram Samvat
@@ -133,6 +138,7 @@ export interface PanchangDay {
     endTime: string;
     nextTithiOdia?: string;
     nextTithiEn?: string;
+    progressPercent?: number;
   };
   
   nakshatra: {
@@ -144,6 +150,7 @@ export interface PanchangDay {
     pada: number;
     nextNakshatraOdia?: string;
     nextNakshatraEn?: string;
+    progressPercent?: number;
   };
   
   yoga: {

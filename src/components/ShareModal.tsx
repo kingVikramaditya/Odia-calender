@@ -21,8 +21,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({
   if (!isOpen) return null;
   const isOdia = language === 'or';
 
-  const shareText = `🌸 **ଆଜିର ଓଡ଼ିଆ ପଞ୍ଚାଙ୍ଗ (${day.dateStr})** 🌸
-📅 **${day.odiaMonthNameOdia} ${day.odiaDayOfSolarMonthOdia} ଦିନ, ${day.varaOdia}**
+  const shareText = isOdia 
+    ? `🌸 **ଆଜିର ଓଡ଼ିଆ ପଞ୍ଚାଙ୍ଗ (${day.dateStr})** 🌸
+📅 **${day.solarMonthNameOdia || day.odiaMonthNameOdia} ${day.odiaDayOfSolarMonthOdia} ଦିନ (${day.lunarMonthNameOdia || day.odiaMonthNameOdia} ମାସ), ${day.varaOdia}**
 ✨ ସାଲ: ${day.odiaYearSal} • ଶକାବ୍ଦ: ${day.sakabda}
 
 🌕 **ତିଥି**: ${day.tithi.nameOdia} (${day.tithi.pakshaOdia}) - ${toOdiaNumber(day.tithi.endTime)} ପର୍ଯ୍ୟନ୍ତ
@@ -36,7 +37,23 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 ⛔ **ବାର ବେଳା**: ${toOdiaNumber(day.timings.baraBela.start)} ରୁ ${toOdiaNumber(day.timings.baraBela.end)}
 ${day.events.length > 0 ? `\n🎉 **ପର୍ବ / ବିଶେଷତା**: ${day.events.map(e => e.titleOdia).join(', ')}` : ''}
 
-ଜୟ ଜଗନ୍ନାଥ 🙏✨`;
+ଜୟ ଜଗନ୍ନାଥ 🙏✨`
+    : `🌸 **Today's Odia Panchang (${day.dateStr})** 🌸
+📅 **${day.solarMonthNameEn || day.odiaMonthNameEn} Day ${day.odiaDayOfSolarMonth} (${day.lunarMonthNameEn || day.odiaMonthNameEn} Masa), ${day.varaEn}**
+✨ Sal: ${day.odiaYearSal} • Sakabda: ${day.sakabda}
+
+🌕 **Tithi**: ${day.tithi.nameEn} (${day.tithi.pakshaEn}) - till ${day.tithi.endTime}
+⭐ **Nakshatra**: ${day.nakshatra.nameEn} (Pada ${day.nakshatra.pada})
+🌿 **Yoga**: ${day.yoga.nameEn} | **Karana**: ${day.karana.nameEn}
+🌙 **Moon Sign**: ${day.rashi.moonSignEn} (${day.moonPhase.nameEn})
+
+🌅 **Sunrise**: ${day.timings.sunrise} | **Sunset**: ${day.timings.sunset}
+🌟 **Abhijit Muhurta**: ${day.timings.abhijit.start} to ${day.timings.abhijit.end}
+⚠️ **Rahu Kala**: ${day.timings.rahuKala.start} to ${day.timings.rahuKala.end}
+⛔ **Bara Bela**: ${day.timings.baraBela.start} to ${day.timings.baraBela.end}
+${day.events.length > 0 ? `\n🎉 **Festivals / Events**: ${day.events.map(e => e.titleEn || e.titleOdia).join(', ')}` : ''}
+
+Jai Jagannath 🙏✨`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareText);
@@ -87,7 +104,7 @@ ${day.events.length > 0 ? `\n🎉 **ପର୍ବ / ବିଶେଷତା**: ${da
             className="flex-1 py-2.5 px-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold font-odia flex items-center justify-center gap-2 shadow-sm transition-colors"
           >
             {copied ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4" />}
-            <span>{copied ? 'କପି ହୋଇଗଲା!' : 'ପଞ୍ଚାଙ୍ଗ କପି କରନ୍ତୁ'}</span>
+            <span>{copied ? (isOdia ? 'କପି ହୋଇଗଲା!' : 'Copied!') : (isOdia ? 'ପଞ୍ଚାଙ୍ଗ କପି କରନ୍ତୁ' : 'Copy Panchang')}</span>
           </button>
 
           <button

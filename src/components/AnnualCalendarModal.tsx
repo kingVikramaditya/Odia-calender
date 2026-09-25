@@ -126,7 +126,7 @@ export const AnnualCalendarModal: React.FC<AnnualCalendarModalProps> = ({
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950 text-orange-800 dark:text-orange-300 font-odia">
-                      {toOdiaNumber(idx + 1)}. {om.seasonOdia} ଋତୁ
+                      {isOdia ? `${toOdiaNumber(idx + 1)}. ${om.seasonOdia} ଋତୁ` : `${idx + 1}. ${om.seasonEn} Season`}
                     </span>
                     <span className="text-xs font-semibold text-neutral-400">
                       {om.approxGMonth}
@@ -134,12 +134,12 @@ export const AnnualCalendarModal: React.FC<AnnualCalendarModalProps> = ({
                   </div>
 
                   <h4 className="text-lg font-black text-neutral-900 dark:text-white font-odia mt-2">
-                    {om.nameOdia} ({om.nameEn})
+                    {isOdia ? `${om.nameOdia} (${om.nameEn})` : `${om.nameEn} (${om.nameOdia})`}
                   </h4>
 
                   {/* Festivals list bullets */}
                   <div className="space-y-1 mt-2.5">
-                    {hls.festivalsOdia.map((fest, fIdx) => (
+                    {(isOdia ? hls.festivalsOdia : hls.festivalsEn).map((fest, fIdx) => (
                       <div key={fIdx} className="text-xs text-neutral-700 dark:text-neutral-300 font-odia flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0" />
                         <span className="truncate">{fest}</span>
@@ -157,7 +157,7 @@ export const AnnualCalendarModal: React.FC<AnnualCalendarModalProps> = ({
                   }}
                   className="mt-4 pt-2.5 border-t border-neutral-200/60 dark:border-neutral-700 text-xs font-bold text-orange-600 dark:text-orange-400 hover:text-orange-700 flex items-center justify-between font-odia transition-colors"
                 >
-                  <span>ଏହି ମାସକୁ ଯାଆନ୍ତୁ</span>
+                  <span>{isOdia ? 'ଏହି ମାସକୁ ଯାଆନ୍ତୁ' : 'Go to this Month'}</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>

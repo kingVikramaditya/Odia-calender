@@ -10,18 +10,20 @@ export interface OdishaGovtHoliday {
   dayOfWeekEn: string;
   descriptionOdia: string;
   descriptionEn: string;
-  source: string; // 'odishacalendar.com / Odisha Govt Gazette'
+  source: string; // 'odishacalendar.com / Odisha Govt Gazette Notification No. 42428/R&D.M.'
 }
 
 /**
- * Official Odisha Government Holidays 2026 as per Odisha Govt Notification / odishacalendar.com
+ * Official Odisha Government Holidays 2026 as per Odisha Govt Notification No. 42428/R&D.M. / odishacalendar.com
  * Includes:
- * 1. Gazetted Holidays (Mandatory state public holidays for Govt offices, schools, colleges)
- * 2. Optional / Restricted Holidays (Employees may select 1-2 optional days)
+ * 1. Gazetted Holidays (Mandatory state public holidays for Govt offices, revenue & magisterial courts, schools, colleges)
+ * 2. Optional / Restricted Holidays (Employees may select 1 optional day)
  * 3. Bank Holidays (Negotiable Instruments Act & 2nd/4th Saturdays + Sundays)
  */
 export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
+  // ==========================================
   // --- JANUARY 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_01_01',
     dateStr: '2026-01-01',
@@ -32,6 +34,18 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     dayOfWeekEn: 'Thursday',
     descriptionOdia: 'ଇଂରାଜୀ ନବବର୍ଷାରମ୍ଭ ଉପଲକ୍ଷେ ଐଚ୍ଛିକ ଛୁଟି ।',
     descriptionEn: "Optional state holiday celebrating New Year's Day.",
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_01_06',
+    dateStr: '2026-01-06',
+    nameOdia: 'ଗୁରୁ ଗୋବିନ୍ଦ ସିଂହ ଜୟନ୍ତୀ (Guru Gobind Singh Birthday)',
+    nameEn: "Guru Gobind Singh's Birthday",
+    type: 'optional',
+    dayOfWeekOdia: 'ମଙ୍ଗଳବାର',
+    dayOfWeekEn: 'Tuesday',
+    descriptionOdia: 'ଶିଖ୍ ଧର୍ମର ଦଶମ ଗୁରୁ ଶ୍ରୀ ଗୁରୁ ଗୋବିନ୍ଦ ସିଂହଜୀଙ୍କ ପବିତ୍ର ଜନ୍ମଜୟନ୍ତୀ ।',
+    descriptionEn: "Optional state holiday commemorating the birth anniversary of Guru Gobind Singh Ji.",
     source: 'odishacalendar.com',
   },
   {
@@ -49,8 +63,8 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
   {
     id: 'gov_2026_01_23',
     dateStr: '2026-01-23',
-    nameOdia: 'ନେତାଜୀ ସୁଭାଷ ବୋଷ ଓ ବୀର ସୁରେନ୍ଦ୍ର ସାଏ ଜୟନ୍ତୀ / ବସନ୍ତ ପଞ୍ଚମୀ',
-    nameEn: 'Netaji Subhas Bose & Veer Surendra Sai Jayanti / Vasant Panchami',
+    nameOdia: 'ନେତାଜୀ ସୁଭାଷ ବୋଷ ଓ ବୀର ସୁରେନ୍ଦ୍ର ସାଏ ଜୟନ୍ତୀ / ସରସ୍ୱତୀ ପୂଜା (ବସନ୍ତ ପଞ୍ଚମୀ)',
+    nameEn: 'Netaji Subhas Bose & Veer Surendra Sai Jayanti / Saraswati Puja (Vasant Panchami)',
     type: 'gazetted',
     dayOfWeekOdia: 'ଶୁକ୍ରବାର',
     dayOfWeekEn: 'Friday',
@@ -71,7 +85,9 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     source: 'odishacalendar.com',
   },
 
+  // ==========================================
   // --- FEBRUARY 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_02_15',
     dateStr: '2026-02-15',
@@ -85,7 +101,9 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     source: 'odishacalendar.com',
   },
 
+  // ==========================================
   // --- MARCH 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_03_03',
     dateStr: '2026-03-03',
@@ -115,11 +133,23 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     dateStr: '2026-03-05',
     nameOdia: 'ପଞ୍ଚାୟତିରାଜ ଦିବସ (ବିଜୁ ପଟ୍ଟନାୟକ ଜୟନ୍ତୀ)',
     nameEn: 'Panchayati Raj Divas (Biju Patnaik Birth Anniversary)',
-    type: 'optional',
+    type: 'gazetted',
     dayOfWeekOdia: 'ଗୁରୁବାର',
     dayOfWeekEn: 'Thursday',
-    descriptionOdia: 'ପୂର୍ବତନ ମୁଖ୍ୟମନ୍ତ୍ରୀ ବିଜୁ ପଟ୍ଟନାୟକଙ୍କ ଜୟନ୍ତୀ ଉପଲକ୍ଷେ ପଞ୍ଚାୟତିରାଜ ଦିବସ ।',
-    descriptionEn: 'Commemoration of Panchayati Raj Divas honoring legendary leader Biju Patnaik.',
+    descriptionOdia: 'ପୂର୍ବତନ ମୁଖ୍ୟମନ୍ତ୍ରୀ ପ୍ରବାଦପୁରୁଷ ବିଜୁ ପଟ୍ଟନାୟକଙ୍କ ଜୟନ୍ତୀ ଉପଲକ୍ଷେ ପଞ୍ଚାୟତିରାଜ ଦିବସ ସରକାରୀ ଛୁଟି ।',
+    descriptionEn: 'Gazetted state holiday commemorating Panchayati Raj Divas and birth anniversary of legendary leader Biju Patnaik.',
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_03_17',
+    dateStr: '2026-03-17',
+    nameOdia: 'ଶବ୍-ଏ-କଦ୍ର (Shab-e-Qadr)',
+    nameEn: 'Shab-e-Qadr',
+    type: 'optional',
+    dayOfWeekOdia: 'ମଙ୍ଗଳବାର',
+    dayOfWeekEn: 'Tuesday',
+    descriptionOdia: 'ପବିତ୍ର ରମଜାନ ମାସର ପୁଣ୍ୟମୟ ରଜନୀ ଶବ୍-ଏ-କଦ୍ର ଉପଲକ୍ଷେ ଐଚ୍ଛିକ ଛୁଟି ।',
+    descriptionEn: 'Optional holiday observing Shab-e-Qadr (Night of Power).',
     source: 'odishacalendar.com',
   },
   {
@@ -137,13 +167,13 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
   {
     id: 'gov_2026_03_27',
     dateStr: '2026-03-27',
-    nameOdia: 'ଶ୍ରୀରାମ ନବମୀ (Rama Navami)',
+    nameOdia: 'ଶ୍ରୀରାମ ନବମୀ (Sri Rama Navami)',
     nameEn: 'Sri Rama Navami',
-    type: 'optional',
+    type: 'gazetted',
     dayOfWeekOdia: 'ଶୁକ୍ରବାର',
     dayOfWeekEn: 'Friday',
-    descriptionOdia: 'ମର୍ଯ୍ୟାଦା ପୁରୁଷୋତ୍ତମ ଭଗବାନ ଶ୍ରୀରାମଚନ୍ଦ୍ରଙ୍କ ପବିତ୍ର ଜନ୍ମୋତ୍ସବ ।',
-    descriptionEn: 'Celebration of the birth of Lord Sri Rama.',
+    descriptionOdia: 'ମର୍ଯ୍ୟାଦା ପୁରୁଷୋତ୍ତମ ଭଗବାନ ଶ୍ରୀରାମଚନ୍ଦ୍ରଙ୍କ ପବିତ୍ର ଜନ୍ମୋତ୍ସବ ସରକାରୀ ଛୁଟି ।',
+    descriptionEn: 'Gazetted public holiday for the celebration of the birth of Lord Sri Rama.',
     source: 'odishacalendar.com',
   },
   {
@@ -159,7 +189,9 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     source: 'odishacalendar.com',
   },
 
+  // ==========================================
   // --- APRIL 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_04_01',
     dateStr: '2026-04-01',
@@ -185,10 +217,22 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     source: 'odishacalendar.com',
   },
   {
+    id: 'gov_2026_04_04',
+    dateStr: '2026-04-04',
+    nameOdia: 'ଇଷ୍ଟର୍ ସାର୍ଟଡେ (Easter Saturday)',
+    nameEn: 'Easter Saturday',
+    type: 'optional',
+    dayOfWeekOdia: 'ଶନିବାର',
+    dayOfWeekEn: 'Saturday',
+    descriptionOdia: 'ଇଷ୍ଟର୍ ରବିବାର ପୂର୍ବଦିନ ପବିତ୍ର ଶନିବାର ଉପଲକ୍ଷେ ଐଚ୍ଛିକ ଛୁଟି ।',
+    descriptionEn: 'Optional holiday for Easter Saturday observance.',
+    source: 'odishacalendar.com',
+  },
+  {
     id: 'gov_2026_04_14',
     dateStr: '2026-04-14',
-    nameOdia: 'ମହା ବିଷୁବ ସଂକ୍ରାନ୍ତି (ଓଡ଼ିଆ ନବବର୍ଷ) ଓ ଡ. ଆମ୍ବେଦକର ଜୟନ୍ତୀ',
-    nameEn: 'Maha Vishuba Sankranti (Odia New Year) & Dr. B.R. Ambedkar Jayanti',
+    nameOdia: 'ମହା ବିଷୁବ ସଂକ୍ରାନ୍ତି (ଓଡ଼ିଆ ନବବର୍ଷ / ପଣା ସଂକ୍ରାନ୍ତି) ଓ ଡ. ବି.ଆର୍. ଆମ୍ବେଦକର ଜୟନ୍ତୀ',
+    nameEn: 'Maha Vishuba Sankranti (Odia New Year / Pana Sankranti) & Dr. B.R. Ambedkar Jayanti',
     type: 'gazetted',
     dayOfWeekOdia: 'ମଙ୍ଗଳବାର',
     dayOfWeekEn: 'Tuesday',
@@ -204,22 +248,24 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     type: 'optional',
     dayOfWeekOdia: 'ରବିବାର',
     dayOfWeekEn: 'Sunday',
-    descriptionOdia: 'ରଥକାଠ ଅନୁକୂଳ, ଚନ୍ଦନ ଯାତ୍ରା ଓ କୃଷକମାନଙ୍କ ଅକ୍ଷିମୁଠି ଅନୁକୂଳ ଉତ୍ସବ ।',
+    descriptionOdia: 'ରଥକାଠ ଅନୁକୂଳ, ଚନ୍ଦନ ଯାତ୍ରା ଓ କୃଷକମାନଙ୍କ ଅକ୍ଷିମୁଠି ଅନୁକୂଳ ଉତ୍ସବ (ରବିବାର) ।',
     descriptionEn: 'Commencement of Ratha construction and Chandan Yatra (falls on Sunday).',
     source: 'odishacalendar.com',
   },
 
+  // ==========================================
   // --- MAY 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_05_01',
     dateStr: '2026-05-01',
-    nameOdia: 'ବୁଦ୍ଧ ପୂର୍ଣ୍ଣିମା ଓ ଅନ୍ତର୍ଜାତୀୟ ଶ୍ରମିକ ଦିବସ (Buddha Purnima & May Day)',
-    nameEn: 'Buddha Purnima & International Workers’ Day',
+    nameOdia: 'ବୁଦ୍ଧ ପୂର୍ଣ୍ଣିମା, ପଣ୍ଡିତ ରଘୁନାଥ ମୁର୍ମୁ ଜୟନ୍ତୀ ଓ ଶ୍ରମିକ ଦିବସ (Buddha Purnima & May Day)',
+    nameEn: 'Buddha Purnima, Pandit Raghunath Murmu Jayanti & May Day',
     type: 'gazetted',
     dayOfWeekOdia: 'ଶୁକ୍ରବାର',
     dayOfWeekEn: 'Friday',
-    descriptionOdia: 'ଭଗବାନ ଗୌତମ ବୁଦ୍ଧଙ୍କ ଜୟନ୍ତୀ ଓ ଅନ୍ତର୍ଜାତୀୟ ଶ୍ରମିକ ଦିବସ ସରକାରୀ ଛୁଟି ।',
-    descriptionEn: 'Gazetted holiday observing Buddha Purnima and May Day.',
+    descriptionOdia: 'ଭଗବାନ ବୁଦ୍ଧଙ୍କ ଜୟନ୍ତୀ, ଓଲଚିକି ଲିପିର ଜନକ ପଣ୍ଡିତ ରଘୁନାଥ ମୁର୍ମୁଙ୍କ ଜୟନ୍ତୀ ଓ ଅନ୍ତର୍ଜାତୀୟ ଶ୍ରମିକ ଦିବସ ସରକାରୀ ଛୁଟି ।',
+    descriptionEn: 'Gazetted state holiday observing Buddha Purnima, Pandit Raghunath Murmu Birthday, and May Day.',
     source: 'odishacalendar.com',
   },
   {
@@ -235,19 +281,33 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     source: 'odishacalendar.com',
   },
   {
-    id: 'gov_2026_05_27',
-    dateStr: '2026-05-27',
+    id: 'gov_2026_05_22',
+    dateStr: '2026-05-22',
+    nameOdia: 'ରାଜା ରାମମୋହନ ରାୟ ଜୟନ୍ତୀ (Raja Rammohan Roy Birthday)',
+    nameEn: "Raja Rammohan Roy's Birthday",
+    type: 'optional',
+    dayOfWeekOdia: 'ଶୁକ୍ରବାର',
+    dayOfWeekEn: 'Friday',
+    descriptionOdia: 'ଭାରତୀୟ ପୁନର୍ଜାଗରଣର ଜନକ ରାଜା ରାମମୋହନ ରାୟଙ୍କ ଜୟନ୍ତୀ ଉପଲକ୍ଷେ ଐଚ୍ଛିକ ଛୁଟି ।',
+    descriptionEn: "Optional state holiday commemorating Raja Rammohan Roy's birth anniversary.",
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_05_28',
+    dateStr: '2026-05-28',
     nameOdia: 'ଇଦ୍-ଉଲ୍-ଜୁହା / ବକ୍ରିଦ୍ (Id-ul-Zuha / Bakrid)',
     nameEn: 'Id-ul-Zuha (Bakrid)',
     type: 'gazetted',
-    dayOfWeekOdia: 'ବୁଧବାର',
-    dayOfWeekEn: 'Wednesday',
-    descriptionOdia: 'ଇସ୍‌ଲାମ ଧର୍ମାବଲମ୍ବୀଙ୍କ ପବିତ୍ର କୁର୍ବାନୀ ଉତ୍ସବ ବକ୍ରିଦ୍ ସରକାରୀ ଛୁଟି ।',
-    descriptionEn: 'Gazetted public holiday for Id-ul-Zuha (Bakrid).',
+    dayOfWeekOdia: 'ଗୁରୁବାର',
+    dayOfWeekEn: 'Thursday',
+    descriptionOdia: 'ଇସ୍‌ଲାମ ଧର୍ମାବଲମ୍ବୀଙ୍କ ପବିତ୍ର କୁର୍ବାନୀ ଉତ୍ସବ ବକ୍ରିଦ୍ ସରକାରୀ ଛୁଟି (ସଂଶୋଧିତ ତାରିଖ) ।',
+    descriptionEn: 'Gazetted public holiday for Id-ul-Zuha (Bakrid) per modified government notification.',
     source: 'odishacalendar.com',
   },
 
+  // ==========================================
   // --- JUNE 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_06_14',
     dateStr: '2026-06-14',
@@ -275,13 +335,13 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
   {
     id: 'gov_2026_06_16',
     dateStr: '2026-06-16',
-    nameOdia: 'ଭୂମି ଦହନ / ଶେଷ ରଜ (Bhumi Dahana)',
+    nameOdia: 'ଭୂମି ଦହନ / ଶେଷ ରଜ / ବାସି ରଜ (Bhumi Dahana)',
     nameEn: 'Bhumi Dahana / Shesha Raja',
     type: 'optional',
     dayOfWeekOdia: 'ମଙ୍ଗଳବାର',
     dayOfWeekEn: 'Tuesday',
     descriptionOdia: 'ରଜ ପର୍ବର ତୃତୀୟ ଦିବସ - ଭୂମିଦହନ ଉତ୍ସବ ।',
-    descriptionEn: 'Third day of Raja Parba festival.',
+    descriptionEn: 'Third day of Raja Parba festival (Bhumi Dahana).',
     source: 'odishacalendar.com',
   },
   {
@@ -297,11 +357,13 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     source: 'odishacalendar.com',
   },
 
+  // ==========================================
   // --- JULY 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_07_16',
     dateStr: '2026-07-16',
-    nameOdia: 'ଶ୍ରୀଜଗନ୍ନାଥ ରଥଯାତ୍ରା / ଶ୍ରୀଗୁଣ୍ଡିଚା ଯାତ୍ରା (Ratha Yatra)',
+    nameOdia: 'ଶ୍ରୀଜଗନ୍ନାଥ ରଥଯାତ୍ରା / ଶ୍ରୀଗୁଣ୍ଡିଚା ଯାତ୍ରା (Puri Ratha Yatra)',
     nameEn: 'Sri Jagannath Ratha Yatra / Gundicha Yatra',
     type: 'gazetted',
     dayOfWeekOdia: 'ଗୁରୁବାର',
@@ -322,8 +384,22 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     descriptionEn: 'Gazetted state holiday for the return journey of deities to Srimandir.',
     source: 'odishacalendar.com',
   },
+  {
+    id: 'gov_2026_07_25',
+    dateStr: '2026-07-25',
+    nameOdia: 'ହରିଶୟନ ଏକାଦଶୀ ଓ ଶ୍ରୀଜଗନ୍ନାଥଙ୍କ ସୁନାବେଶ (Hari Sayana Ekadashi & Suna Besha)',
+    nameEn: 'Hari Sayana Ekadashi & Suna Besha',
+    type: 'gazetted',
+    dayOfWeekOdia: 'ଶନିବାର',
+    dayOfWeekEn: 'Saturday',
+    descriptionOdia: 'ମହାପ୍ରଭୁଙ୍କ ରଥ ଉପରେ ଦିବ୍ୟ ସୁନାବେଶ ଦର୍ଶନ ଓ ଚାତୁର୍ମାସ୍ୟ ହରିଶୟନ ଏକାଦଶୀ (୪ର୍ଥ ଶନିବାର ସହିତ ସମନ୍ୱିତ) ।',
+    descriptionEn: 'Gazetted holiday for Lord Jagannath Suna Besha and Hari Sayana Ekadashi (coincides with 4th Saturday).',
+    source: 'odishacalendar.com',
+  },
 
+  // ==========================================
   // --- AUGUST 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_08_15',
     dateStr: '2026-08-15',
@@ -337,23 +413,61 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     source: 'odishacalendar.com',
   },
   {
-    id: 'gov_2026_08_27',
-    dateStr: '2026-08-27',
-    nameOdia: 'ଗହ୍ମା ପୂର୍ଣ୍ଣିମା / ରାକ୍ଷୀ ପୂର୍ଣ୍ଣିମା (Gamha Purnima & Raksha Bandhan)',
-    nameEn: 'Gamha Purnima / Raksha Bandhan',
+    id: 'gov_2026_08_20',
+    dateStr: '2026-08-20',
+    nameOdia: 'ବ୍ରାହ୍ମସମାଜ ପ୍ରତିଷ୍ଠା ଦିବସ (Foundation Day of Brahma Samaj)',
+    nameEn: 'Foundation Day of Brahma Samaj',
     type: 'optional',
     dayOfWeekOdia: 'ଗୁରୁବାର',
     dayOfWeekEn: 'Thursday',
-    descriptionOdia: 'ଭଗବାନ ବଳଭଦ୍ରଙ୍କ ଜନ୍ମୋତ୍ସବ, ଗୋପୂଜା ଓ ଭାଇଭଉଣୀଙ୍କ ରାକ୍ଷୀ ବନ୍ଧନ ପର୍ବ ।',
+    descriptionOdia: 'ରାଜା ରାମମୋହନ ରାୟଙ୍କ ଦ୍ୱାରା ବ୍ରାହ୍ମସମାଜ ପ୍ରତିଷ୍ଠା ଦିବସ ସ୍ମୃତିରେ ଐଚ୍ଛିକ ଛୁଟି ।',
+    descriptionEn: 'Optional holiday observing the Foundation Day of Brahma Samaj.',
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_08_26',
+    dateStr: '2026-08-26',
+    nameOdia: 'ମହମ୍ମଦ ଜୟନ୍ତୀ / ଇଦ୍-ଏ-ମିଲାଦ୍ (Birthday of Prophet Mohammad)',
+    nameEn: 'Birthday of Prophet Mohammad (Eid-e-Milad)',
+    type: 'gazetted',
+    dayOfWeekOdia: 'ବୁଧବାର',
+    dayOfWeekEn: 'Wednesday',
+    descriptionOdia: 'ପବିତ୍ର ପୈଗମ୍ବର ହଜରତ ମହମ୍ମଦଙ୍କ ଜନ୍ମଜୟନ୍ତୀ ଉପଲକ୍ଷେ ସରକାରୀ ଛୁଟି ।',
+    descriptionEn: 'Gazetted public holiday for the Birthday of Prophet Mohammad (Eid-e-Milad).',
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_08_27',
+    dateStr: '2026-08-27',
+    nameOdia: 'ଝୁଲଣ ପୂର୍ଣ୍ଣିମା (Jhulana Purnima)',
+    nameEn: 'Jhulana Purnima',
+    type: 'optional',
+    dayOfWeekOdia: 'ଗୁରୁବାର',
+    dayOfWeekEn: 'Thursday',
+    descriptionOdia: 'ଶ୍ରୀଜଗନ୍ନାଥ ମନ୍ଦିର ଓ ଓଡ଼ିଶାର ମଠମାନଙ୍କରେ ରାଧାକୃଷ୍ଣଙ୍କ ମହାନ ଝୁଲଣ ଯାତ୍ରା ଉପଲକ୍ଷେ ଐଚ୍ଛିକ ଛୁଟି ।',
+    descriptionEn: 'Optional holiday celebrating Jhulana Purnima swing festival.',
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_08_28',
+    dateStr: '2026-08-28',
+    nameOdia: 'ଗହ୍ମା ପୂର୍ଣ୍ଣିମା / ରାକ୍ଷୀ ପୂର୍ଣ୍ଣିମା (Gamha Purnima & Raksha Bandhan)',
+    nameEn: 'Gamha Purnima / Raksha Bandhan',
+    type: 'optional',
+    dayOfWeekOdia: 'ଶୁକ୍ରବାର',
+    dayOfWeekEn: 'Friday',
+    descriptionOdia: 'ଭଗବାନ ବଳଭଦ୍ରଙ୍କ ଜନ୍ମୋତ୍ସବ, ଗୋପୂଜା ଓ ଭାଇଭଉଣୀଙ୍କ ରାକ୍ଷୀ ବନ୍ଧନ ପର୍ବ ଉପଲକ୍ଷେ ଛୁଟି ।',
     descriptionEn: 'Celebration of Lord Balabhadra birth and Raksha Bandhan.',
     source: 'odishacalendar.com',
   },
 
+  // ==========================================
   // --- SEPTEMBER 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_09_04',
     dateStr: '2026-09-04',
-    nameOdia: 'ଶ୍ରୀକୃଷ୍ଣ ଜନ୍ମାଷ୍ଟମୀ (Janmashtami)',
+    nameOdia: 'ଶ୍ରୀକୃଷ୍ଣ ଜନ୍ମାଷ୍ଟମୀ (Sri Krishna Janmashtami)',
     nameEn: 'Sri Krishna Janmashtami',
     type: 'gazetted',
     dayOfWeekOdia: 'ଶୁକ୍ରବାର',
@@ -365,8 +479,8 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
   {
     id: 'gov_2026_09_14',
     dateStr: '2026-09-14',
-    nameOdia: 'ଗଣେଶ ଚତୁର୍ଥୀ (Ganesh Chaturthi)',
-    nameEn: 'Ganesh Chaturthi',
+    nameOdia: 'ଗଣେଶ ଚତୁର୍ଥୀ / ଗଣେଶ ପୂଜା (Ganesh Chaturthi)',
+    nameEn: 'Ganesh Chaturthi / Ganesh Puja',
     type: 'gazetted',
     dayOfWeekOdia: 'ସୋମବାର',
     dayOfWeekEn: 'Monday',
@@ -375,31 +489,33 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     source: 'odishacalendar.com',
   },
   {
-    id: 'gov_2026_09_16',
-    dateStr: '2026-09-16',
+    id: 'gov_2026_09_15',
+    dateStr: '2026-09-15',
     nameOdia: 'ନୂଆଖାଇ (Nuakhai - Western Odisha Harvest Festival)',
     nameEn: 'Nuakhai',
     type: 'gazetted',
-    dayOfWeekOdia: 'ବୁଧବାର',
-    dayOfWeekEn: 'Wednesday',
+    dayOfWeekOdia: 'ମଙ୍ଗଳବାର',
+    dayOfWeekEn: 'Tuesday',
     descriptionOdia: 'ପଶ୍ଚିମ ଓଡ଼ିଶାର ସର୍ବଶ୍ରେଷ୍ଠ କୃଷିଭିତ୍ତିକ ଗଣପର୍ବ ନୂଆଖାଇ । ନୂତନ ଶସ୍ୟ ଅର୍ପଣ ଓ ନୂଆଖାଇ ଭେଟଘାଟ ସରକାରୀ ଛୁଟି ।',
     descriptionEn: 'State gazetted holiday for Nuakhai, Western Odisha’s premier harvest and bonding festival.',
     source: 'odishacalendar.com',
   },
   {
-    id: 'gov_2026_09_17',
-    dateStr: '2026-09-17',
-    nameOdia: 'ନୂଆଖାଇ ଅତିରିକ୍ତ ଦିବସ (Nuakhai Second Day)',
-    nameEn: 'Nuakhai Next Day Observance',
-    type: 'optional',
-    dayOfWeekOdia: 'ଗୁରୁବାର',
-    dayOfWeekEn: 'Thursday',
-    descriptionOdia: 'ନୂଆଖାଇ ପରବର୍ତ୍ତୀ ସାଂସ୍କୃତିକ ଭେଟଘାଟ ଓ ଲୋକନୃତ୍ୟ ଉତ୍ସବ ।',
-    descriptionEn: 'Nuakhai cultural gathering day.',
+    id: 'gov_2026_09_16',
+    dateStr: '2026-09-16',
+    nameOdia: 'ନୂଆଖାଇ ପରବର୍ତ୍ତୀ ଦିବସ (Day Following Nuakhai)',
+    nameEn: 'Day Following Nuakhai',
+    type: 'gazetted',
+    dayOfWeekOdia: 'ବୁଧବାର',
+    dayOfWeekEn: 'Wednesday',
+    descriptionOdia: 'ନୂଆଖାଇ ପରବର୍ତ୍ତୀ ସାଂସ୍କୃତିକ ଭେଟଘାଟ ଓ ଲୋକନୃତ୍ୟ ଉତ୍ସବ ସରକାରୀ ଛୁଟି ।',
+    descriptionEn: 'Official Odisha State gazetted holiday for the day following Nuakhai.',
     source: 'odishacalendar.com',
   },
 
+  // ==========================================
   // --- OCTOBER 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_10_02',
     dateStr: '2026-10-02',
@@ -425,55 +541,93 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     source: 'odishacalendar.com',
   },
   {
+    id: 'gov_2026_10_17',
+    dateStr: '2026-10-17',
+    nameOdia: 'ଦୁର୍ଗାପୂଜା (ମହାସପ୍ତମୀ) (Durga Puja - Maha Saptami)',
+    nameEn: 'Durga Puja (Maha Saptami)',
+    type: 'gazetted',
+    dayOfWeekOdia: 'ଶନିବାର',
+    dayOfWeekEn: 'Saturday',
+    descriptionOdia: 'ମହାନ୍ ଶାରଦୀୟ ଦୁର୍ଗାପୂଜାର ପ୍ରଥମ ପୂଜନ ଦିବସ ମହାସପ୍ତମୀ । ନବପତ୍ରିକା ପ୍ରବେଶ ଓ ମା’ଙ୍କ ଆବାହନ ସରକାରୀ ଛୁଟି ।',
+    descriptionEn: 'Official Odisha State Government gazetted public holiday for Durga Puja Maha Saptami (Nabapatrika pravesha).',
+    source: 'odishacalendar.com',
+  },
+  {
     id: 'gov_2026_10_18',
     dateStr: '2026-10-18',
-    nameOdia: 'ଦୁର୍ଗାପୂଜା (ମହାଷ୍ଟମୀ / ମହାନବମୀ) (Maha Ashtami / Navami)',
-    nameEn: 'Durga Puja (Maha Ashtami / Navami)',
+    nameOdia: 'ଦୁର୍ଗାପୂଜା (ମହାଷ୍ଟମୀ) (Durga Puja - Maha Ashtami)',
+    nameEn: 'Durga Puja (Maha Ashtami)',
     type: 'gazetted',
     dayOfWeekOdia: 'ରବିବାର',
     dayOfWeekEn: 'Sunday',
-    descriptionOdia: 'ମା’ ଦୁର୍ଗାଙ୍କ ମହାଷ୍ଟମୀ ଓ ମହାନବମୀ ସନ୍ଧିପୂଜା ସରକାରୀ ଛୁଟି ।',
-    descriptionEn: 'Gazetted state holiday for Durga Puja Maha Ashtami.',
+    descriptionOdia: 'ମା’ ଦୁର୍ଗାଙ୍କ ମହାଷ୍ଟମୀ ଓ ସନ୍ଧିପୂଜା ସରକାରୀ ଛୁଟି (ରବିବାର ସହିତ ସମନ୍ୱିତ) ।',
+    descriptionEn: 'Gazetted state holiday for Durga Puja Maha Ashtami (falls on Sunday).',
     source: 'odishacalendar.com',
   },
   {
     id: 'gov_2026_10_19',
     dateStr: '2026-10-19',
-    nameOdia: 'ବିଜୟା ଦଶମୀ / ଦସହରା (Vijaya Dashami / Dussehra)',
-    nameEn: 'Vijaya Dashami / Dussehra',
+    nameOdia: 'ଦୁର୍ଗାପୂଜା (ମହାନବମୀ) (Durga Puja - Maha Navami)',
+    nameEn: 'Durga Puja (Maha Navami)',
     type: 'gazetted',
     dayOfWeekOdia: 'ସୋମବାର',
     dayOfWeekEn: 'Monday',
-    descriptionOdia: 'ଅଧର୍ମ ଉପରେ ଧର୍ମର ବିଜୟ, ମା’ ଦୁର୍ଗାଙ୍କ ବିସର୍ଜନ ଓ ରାବଣ ପୋଡ଼ି ସରକାରୀ ଛୁଟି ।',
-    descriptionEn: 'Gazetted state public holiday for Vijaya Dashami (Dussehra).',
+    descriptionOdia: 'ମା’ ଦୁର୍ଗାଙ୍କ ମହିଷାସୁର ମର୍ଦ୍ଦିନୀ ମହାନବମୀ ଆରାଧନା ଓ ଚଣ୍ଡୀ ହୋମ ସରକାରୀ ଛୁଟି ।',
+    descriptionEn: 'Official Odisha State Government gazetted public holiday for Durga Puja Maha Navami.',
     source: 'odishacalendar.com',
   },
   {
     id: 'gov_2026_10_20',
     dateStr: '2026-10-20',
-    nameOdia: 'ଦସହରା ଭାସାଣି ଦିବସ (Dussehra Immersion / Bhasani)',
-    nameEn: 'Dussehra Immersion Day',
-    type: 'optional',
+    nameOdia: 'ବିଜୟା ଦଶମୀ / ଦସହରା (Vijaya Dashami / Dussehra)',
+    nameEn: 'Vijaya Dashami / Dussehra',
+    type: 'gazetted',
     dayOfWeekOdia: 'ମଙ୍ଗଳବାର',
     dayOfWeekEn: 'Tuesday',
-    descriptionOdia: 'କଟକ ଓ ଭୁବନେଶ୍ୱର ସମେତ ରାଜ୍ୟବ୍ୟାପୀ ମା’ ଦୁର୍ଗାଙ୍କ ମେଲୋଡ଼ି ଓ ଭାସାଣି ଶୋଭାଯାତ୍ରା ।',
-    descriptionEn: 'Optional holiday for grand Durga idol immersion processions.',
+    descriptionOdia: 'ଅଧର୍ମ ଉପରେ ଧର୍ମର ବିଜୟ, ମା’ ଦୁର୍ଗାଙ୍କ ବିସର୍ଜନ, ଅପରାଜିତା ପୂଜା ଓ ରାବଣ ପୋଡ଼ି ସରକାରୀ ଛୁଟି ।',
+    descriptionEn: 'Gazetted state public holiday for Vijaya Dashami (Dussehra and Ravana Podi).',
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_10_21',
+    dateStr: '2026-10-21',
+    nameOdia: 'ଦସହରା ଭାସାଣି ଦିବସ (Day Following Vijaya Dashami / Bhasani)',
+    nameEn: 'Day Following Vijaya Dashami (Dussehra Bhasani)',
+    type: 'optional',
+    dayOfWeekOdia: 'ବୁଧବାର',
+    dayOfWeekEn: 'Wednesday',
+    descriptionOdia: 'କଟକ ଓ ଭୁବନେଶ୍ୱର ସମେତ ରାଜ୍ୟବ୍ୟାପୀ ମା’ ଦୁର୍ଗାଙ୍କ ମେଲୋଡ଼ି ଓ ଭାସାଣି ଶୋଭାଯାତ୍ରା ଉପଲକ୍ଷେ ଐଚ୍ଛିକ ଛୁଟି ।',
+    descriptionEn: 'Optional holiday for grand Durga idol immersion processions and carnival.',
     source: 'odishacalendar.com',
   },
   {
     id: 'gov_2026_10_25',
     dateStr: '2026-10-25',
-    nameOdia: 'କୁମାର ପୂର୍ଣ୍ଣିମା (Kumar Purnima)',
-    nameEn: 'Kumar Purnima',
+    nameOdia: 'କୁମାର ଉତ୍ସବ ସନ୍ଧ୍ୟା (Kumar Utsav Eve & Chanda Puja)',
+    nameEn: 'Kumar Utsav Eve & Chanda Puja',
     type: 'optional',
     dayOfWeekOdia: 'ରବିବାର',
     dayOfWeekEn: 'Sunday',
-    descriptionOdia: 'କୁମାରୀମାନଙ୍କ ଚାନ୍ଦ ପୂଜା, ଲକ୍ଷ୍ମୀନାରାୟଣ ପୂଜା ଓ ପଶା ଖେଳ ଉତ୍ସବ (ରବିବାର) ।',
-    descriptionEn: 'Odia youth festival celebrating the rising moon with sweet offerings.',
+    descriptionOdia: 'କୁମାରୀମାନଙ୍କ ଚାନ୍ଦ ପୂଜା, ଲକ୍ଷ୍ମୀନାରାୟଣ ପୂଜା ଓ ପଶା ଖେଳ ଉତ୍ସବ ସନ୍ଧ୍ୟା (ରବିବାର ସହିତ ସମନ୍ୱିତ) ।',
+    descriptionEn: 'Celebration of youth, worship of rising full moon with Chanda Chakata on Sunday evening.',
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_10_26',
+    dateStr: '2026-10-26',
+    nameOdia: 'କୁମାର ପୂର୍ଣ୍ଣିମା (Kumar Purnima)',
+    nameEn: 'Kumar Purnima',
+    type: 'gazetted',
+    dayOfWeekOdia: 'ସୋମବାର',
+    dayOfWeekEn: 'Monday',
+    descriptionOdia: 'ପବିତ୍ର କୁମାର ପୂର୍ଣ୍ଣିମା, କୋଜାଗରୀ ଗଜଲକ୍ଷ୍ମୀ ପୂଜା ଓ କାର୍ତ୍ତିକ ବ୍ରତ ଆରମ୍ଭ ସରକାରୀ ଛୁଟି ।',
+    descriptionEn: 'State gazetted public holiday for Kumar Purnima, Kojagari Gajalakshmi Puja, and commencement of Kartika Vrata.',
     source: 'odishacalendar.com',
   },
 
+  // ==========================================
   // --- NOVEMBER 2026 ---
+  // ==========================================
   {
     id: 'gov_2026_11_08',
     dateStr: '2026-11-08',
@@ -483,7 +637,7 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     dayOfWeekOdia: 'ରବିବାର',
     dayOfWeekEn: 'Sunday',
     descriptionOdia: 'ଆଲୋକର ମହାପର୍ବ ଦୀପାବଳି, ବଡ଼ବଡୁଆ ଡାକ ଓ ଶ୍ୟାମା କାଳୀପୂଜା (ରବିବାର ସହିତ ସମନ୍ୱିତ) ।',
-    descriptionEn: 'Gazetted public holiday for Diwali festival of lights and Kali Puja.',
+    descriptionEn: 'Gazetted public holiday for Diwali festival of lights and Kali Puja (Sunday).',
     source: 'odishacalendar.com',
   },
   {
@@ -494,7 +648,7 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     type: 'optional',
     dayOfWeekOdia: 'ସୋମବାର',
     dayOfWeekEn: 'Monday',
-    descriptionOdia: 'ଗୋପାଳଙ୍କ ଗୋପୂଜା ଓ ଗୋବର୍ଦ୍ଧନ ପର୍ବତ ବନ୍ଦନା ଉତ୍ସବ ।',
+    descriptionOdia: 'ଗୋପାଳଙ୍କ ଗୋପୂଜା ଓ ଗୋବର୍ଦ୍ଧନ ପର୍ବତ ବନ୍ଦନା ଉତ୍ସବ ଉପଲକ୍ଷେ ଐଚ୍ଛିକ ଛୁଟି ।',
     descriptionEn: 'Optional state holiday for Govardhan Puja.',
     source: 'odishacalendar.com',
   },
@@ -518,15 +672,27 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     type: 'optional',
     dayOfWeekOdia: 'ରବିବାର',
     dayOfWeekEn: 'Sunday',
-    descriptionOdia: 'ସୂର୍ଯ୍ୟଦେବ ଓ ଛଠୀ ମାତାଙ୍କ କଠୋର ବ୍ରତ ଓ ଅର୍ଘ୍ୟଦାନ ।',
-    descriptionEn: 'Optional holiday for Chhath Puja sun worship.',
+    descriptionOdia: 'ସୂର୍ଯ୍ୟଦେବ ଓ ଛଠୀ ମାତାଙ୍କ କଠୋର ବ୍ରତ ଓ ଅର୍ଘ୍ୟଦାନ (ରବିବାର) ।',
+    descriptionEn: 'Optional holiday for Chhath Puja sun worship (falls on Sunday).',
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_11_18',
+    dateStr: '2026-11-18',
+    nameOdia: 'ଅଅଁଳା ନବମୀ / ଅନଳା ନବମୀ (ରାଧାପାଦ ଦର୍ଶନ)',
+    nameEn: 'Anla Navami (Radha Pada Darshan)',
+    type: 'optional',
+    dayOfWeekOdia: 'ବୁଧବାର',
+    dayOfWeekEn: 'Wednesday',
+    descriptionOdia: 'ସାକ୍ଷୀଗୋପାଳ ମନ୍ଦିରରେ ମାତା ରାଧାରାଣୀଙ୍କ ପବିତ୍ର ପାଦପଦ୍ମ ଦର୍ଶନ ଓ ଅଅଁଳା ବୃକ୍ଷ ପୂଜନ ଉପଲକ୍ଷେ ଐଚ୍ଛିକ ଛୁଟି ।',
+    descriptionEn: 'Optional state holiday for Anla Navami and divine Radha Pada Darshan at Sakshigopal Temple.',
     source: 'odishacalendar.com',
   },
   {
     id: 'gov_2026_11_24',
     dateStr: '2026-11-24',
-    nameOdia: 'ରାସ ପୂର୍ଣ୍ଣିମା / କାର୍ତ୍ତିକ ପୂର୍ଣ୍ଣିମା (ବୋଇତ ବନ୍ଦାଣ)',
-    nameEn: 'Rasa Purnima / Kartika Purnima (Boita Bandana)',
+    nameOdia: 'ରାସ ପୂର୍ଣ୍ଣିମା / କାର୍ତ୍ତିକ ପୂର୍ଣ୍ଣିମା (ବୋଇତ ବନ୍ଦାଣ ଓ ବାଲିଯାତ୍ରା ଆରମ୍ଭ)',
+    nameEn: 'Rasa Purnima / Kartika Purnima (Boita Bandana & Bali Yatra)',
     type: 'gazetted',
     dayOfWeekOdia: 'ମଙ୍ଗଳବାର',
     dayOfWeekEn: 'Tuesday',
@@ -535,7 +701,33 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     source: 'odishacalendar.com',
   },
 
+  // ==========================================
   // --- DECEMBER 2026 ---
+  // ==========================================
+  {
+    id: 'gov_2026_12_01',
+    dateStr: '2026-12-01',
+    nameOdia: 'ପ୍ରଥମାଷ୍ଟମୀ (Prathamastami)',
+    nameEn: 'Prathamastami',
+    type: 'optional',
+    dayOfWeekOdia: 'ମଙ୍ଗଳବାର',
+    dayOfWeekEn: 'Tuesday',
+    descriptionOdia: 'ଜ୍ୟେଷ୍ଠ ସନ୍ତାନ ବନ୍ଦାପନା, ମାମୁଁ ଘର ଭାର ଓ ହଳଦୀ ପତ୍ର ଏଣ୍ଡୁରି ପିଠା ପ୍ରସ୍ତୁତି ଉପଲକ୍ଷେ ଛୁଟି ।',
+    descriptionEn: 'Firstborn blessing ceremony, motherly blessings, and steaming Enduri Pitha.',
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_12_24',
+    dateStr: '2026-12-24',
+    nameOdia: 'ଖ୍ରୀଷ୍ଟମାସ ଇଭ୍ (Christmas Eve)',
+    nameEn: 'Christmas Eve',
+    type: 'optional',
+    dayOfWeekOdia: 'ଗୁରୁବାର',
+    dayOfWeekEn: 'Thursday',
+    descriptionOdia: 'ବଡ଼ଦିନ ପୂର୍ବ ସନ୍ଧ୍ୟା ଉପଲକ୍ଷେ ଐଚ୍ଛିକ ଛୁଟି ।',
+    descriptionEn: 'Optional holiday for Christmas Eve celebrations.',
+    source: 'odishacalendar.com',
+  },
   {
     id: 'gov_2026_12_25',
     dateStr: '2026-12-25',
@@ -546,6 +738,18 @@ export const ODISHA_GOVT_HOLIDAYS_2026: OdishaGovtHoliday[] = [
     dayOfWeekEn: 'Friday',
     descriptionOdia: 'ପ୍ରଭୁ ଯୀଶୁ ଖ୍ରୀଷ୍ଟଙ୍କ ପବିତ୍ର ଜନ୍ମୋତ୍ସବ ବଡ଼ଦିନ ସମସ୍ତ ସରକାରୀ ଓ ବ୍ୟାଙ୍କ ଛୁଟି ।',
     descriptionEn: 'National gazetted public holiday celebrating Christmas Day across all institutions.',
+    source: 'odishacalendar.com',
+  },
+  {
+    id: 'gov_2026_12_26',
+    dateStr: '2026-12-26',
+    nameOdia: 'ଖ୍ରୀଷ୍ଟମାସ ପରବର୍ତ୍ତୀ ଦିବସ (Day Following Christmas / Boxing Day)',
+    nameEn: 'Day Following Christmas (Boxing Day)',
+    type: 'optional',
+    dayOfWeekOdia: 'ଶନିବାର',
+    dayOfWeekEn: 'Saturday',
+    descriptionOdia: 'ବଡ଼ଦିନ ପରବର୍ତ୍ତୀ ଆନନ୍ଦ ଉତ୍ସବ (୪ର୍ଥ ଶନିବାର ସହିତ ସମନ୍ୱିତ) ।',
+    descriptionEn: 'Day following Christmas / Boxing Day (coincides with 4th Saturday).',
     source: 'odishacalendar.com',
   },
 ];

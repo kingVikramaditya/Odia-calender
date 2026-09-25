@@ -81,7 +81,7 @@ export const MuhurtaView: React.FC<MuhurtaViewProps> = ({
 
           <div className="flex items-center gap-2 text-xs font-bold text-neutral-700 dark:text-neutral-300 bg-white/80 dark:bg-neutral-800/80 px-4 py-2 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-xs self-start md:self-auto shrink-0 font-odia">
             <Award className="w-4 h-4 text-amber-500" />
-            <span>{filteredMuhurtas.length} ଟି ମୁହୂର୍ତ୍ତ ଉପଲବ୍ଧ</span>
+            <span>{filteredMuhurtas.length} {isOdia ? 'ଟି ମୁହୂର୍ତ୍ତ ଉପଲବ୍ଧ' : 'Muhurtas Available'}</span>
           </div>
         </div>
 
@@ -128,7 +128,7 @@ export const MuhurtaView: React.FC<MuhurtaViewProps> = ({
                 </div>
 
                 <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-odia">
-                  {item.rating === 'Uttama' ? 'ଉତ୍ତମ' : 'ମଧ୍ୟମ'}
+                  {isOdia ? (item.rating === 'Uttama' ? 'ଉତ୍ତମ' : 'ମଧ୍ୟମ') : (item.rating === 'Uttama' ? 'Excellent' : 'Moderate')}
                 </span>
               </div>
 
@@ -140,7 +140,7 @@ export const MuhurtaView: React.FC<MuhurtaViewProps> = ({
                 </div>
                 <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                   <Clock className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                  <span>{toOdiaNumber(item.timeWindow)}</span>
+                  <span>{isOdia ? toOdiaNumber(item.timeWindow) : item.timeWindow}</span>
                 </div>
               </div>
 
